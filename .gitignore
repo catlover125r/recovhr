@@ -5,3 +5,4 @@ ruvector.db
 .env.*
 node_modules/
 *.log
+ruflo/

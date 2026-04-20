@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RecovHR</title>
+  <meta name="description" content="A heart rate reserve–based algorithm for individualized interval recovery prescription. Know when to go again.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+
+    :root {
+      --black:   #3D0000;
+      --dark:    #7A0000;
+      --red:     #CD0B0B;
+      --teal:    #12BFBF;
+      --teal-d:  #007F7F;
+      --white:   #ffffff;
+      --off:     #f7f4f4;
+      --ink:     #1a0a0a;
+      --ink2:    #4a2a2a;
+      --ink3:    #9a7a7a;
+      --rule:    #e8dede;
+      --max:     1140px;
+      --pad:     32px;
+      --diag:    60px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ─── Nav ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: rgba(61,0,0,0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(205,11,11,0.25);
+    }
+    .nav-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--pad);
+      height: 52px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 0.04em;
+      color: var(--white);
+    }
+    .nav-brand span { color: var(--teal); }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    nav a {
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      transition: color .18s;
+    }
+    nav a:hover { color: var(--teal); }
+    .nav-paper {
+      border: 1px solid var(--teal);
+      border-radius: 4px;
+      padding: 5px 14px;
+      color: var(--teal) !important;
+      transition: background .18s, color .18s !important;
+    }
+    .nav-paper:hover { background: var(--teal); color: var(--black) !important; }
+    .nav-spacer { height: 52px; }
+
+    /* ─── Hamburger ─── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--white); border-radius: 2px;
+      transition: transform .25s, opacity .25s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── Sidebar ─── */
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 300;
+    }
+    .sidebar-overlay.open { display: block; }
+    .sidebar {
+      position: fixed; top: 0; right: 0;
+      width: 260px; height: 100dvh;
+      background: var(--black); z-index: 400;
+      display: flex; flex-direction: column;
+      padding: 60px 0 32px;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.22,.68,0,1);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar a {
+      font-size: 15px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      padding: 15px 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: color .15s;
+    }
+    .sidebar a:hover { color: var(--teal); }
+    .sidebar .sidebar-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 0.04em;
+      color: var(--white); padding: 0 28px 20px;
+      border-bottom: 1px solid rgba(205,11,11,0.4);
+      margin-bottom: 4px;
+    }
+    .sidebar .sidebar-brand span { color: var(--teal); }
+
+    /* ─── Hero ─── */
+    .hero {
+      background: var(--black);
+      position: relative;
+      padding: 80px var(--pad) 120px;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: var(--diag);
+      background: var(--white);
+      clip-path: polygon(0 100%, 100% 0, 100% 100%);
+    }
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-left { position: relative; z-index: 1; }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: 16px;
+    }
+    .hero-wordmark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 110px;
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      color: var(--white);
+    }
+    .hero-wordmark span { color: var(--teal); }
+    .hero-tagline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.5);
+      margin-top: 12px;
+    }
+    .hero-right {
+      position: relative; z-index: 1;
+      border-left: 2px solid rgba(205,11,11,0.4);
+      padding-left: 36px;
+    }
+    .hero-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.75);
+    }
+    .hero-text strong { color: var(--teal); font-weight: 600; }
+    .hero-text p + p { margin-top: 16px; }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .hero-stat {
+      border: 1px solid rgba(18,191,191,0.25);
+      border-radius: 6px;
+      padding: 14px 16px;
+      background: rgba(18,191,191,0.06);
+    }
+    .hero-stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      color: var(--teal);
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* ─── Section wrappers ─── */
+    .section-light {
+      background: var(--white);
+      position: relative;
+      padding: calc(var(--diag) + 40px) var(--pad) 80px;
+    }
+    .section-dark {
+      background: var(--black);
+      position: relative;
+      padding: calc(var(--diag) + 40px) var(--pad) 80px;
+    }
+    .section-mid {
+      background: var(--off);
+      position: relative;
+      padding: calc(var(--diag) + 40px) var(--pad) 80px;
+    }
+
+    .section-light::before,
+    .section-mid::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0; right: 0;
+      height: var(--diag);
+      background: inherit;
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+    }
+    .section-dark::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0; right: 0;
+      height: var(--diag);
+      background: var(--black);
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+    }
+    .section-light::after,
+    .section-mid::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: var(--diag);
+      background: inherit;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+    .section-dark::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: var(--diag);
+      background: var(--black);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+
+    .section-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── Section headings ─── */
+    .section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: 10px;
+    }
+    .section-label.light { color: var(--red); }
+
+    .display-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px;
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+    .display-heading.dark { color: var(--ink); }
+    .display-heading span { color: var(--teal); }
+    .display-heading span.red { color: var(--red); }
+
+    /* ─── Problem section ─── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .problem-card {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 28px;
+      background: rgba(255,255,255,0.04);
+    }
+    .problem-card.bad  { border-color: rgba(205,11,11,0.4);  background: rgba(205,11,11,0.06); }
+    .problem-card.good { border-color: rgba(18,191,191,0.4); background: rgba(18,191,191,0.06); }
+    .problem-card-label {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .problem-card-label.bad  { color: var(--red); }
+    .problem-card-label.good { color: var(--teal); }
+    .problem-card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; line-height: 1; letter-spacing: 0.02em;
+      color: var(--white); margin-bottom: 10px;
+    }
+    .problem-card-body {
+      font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.7;
+    }
+    .problem-intro {
+      font-size: 15px; color: rgba(255,255,255,0.75);
+      line-height: 1.85; max-width: 640px;
+    }
+    .problem-intro strong { color: var(--teal); }
+
+    /* ─── Algorithm section ─── */
+    .algo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .algo-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .input-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      background: var(--white);
+    }
+    .input-symbol {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--red);
+      min-width: 52px;
+      line-height: 1;
+    }
+    .input-detail {}
+    .input-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .input-desc { font-size: 11.5px; color: var(--ink3); margin-top: 2px; line-height: 1.45; }
+
+    .formula-box {
+      background: var(--black);
+      border-radius: 10px;
+      padding: 32px;
+      margin-top: 28px;
+    }
+    .formula-label {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 14px;
+    }
+    .formula {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      line-height: 1.6;
+    }
+    .formula .f-var { color: var(--teal); }
+    .formula .f-op  { color: rgba(255,255,255,0.35); }
+    .formula .f-eq  { color: var(--red); }
+    .formula-note {
+      font-size: 11.5px; color: rgba(255,255,255,0.45);
+      margin-top: 14px; line-height: 1.6;
+    }
+    .formula-note strong { color: rgba(255,255,255,0.7); }
+
+    .section-body {
+      font-size: 14px; color: var(--ink2); line-height: 1.8;
+      max-width: 600px;
+    }
+    .section-body.light { color: rgba(255,255,255,0.7); }
+    .section-body p + p { margin-top: 14px; }
+
+    /* ─── Workout types section ─── */
+    .workout-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 40px;
+    }
+    .workout-card {
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .workout-card-top {
+      background: var(--dark);
+      padding: 20px 20px 16px;
+      position: relative;
+    }
+    .workout-card-top.teal { background: var(--teal-d); }
+    .workout-card-type {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px; letter-spacing: 0.04em;
+      color: var(--white); line-height: 1;
+    }
+    .workout-card-effort {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.55);
+      margin-top: 4px;
+    }
+    .workout-card-body { padding: 18px 20px 20px; }
+    .threshold-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px; line-height: 1;
+      color: var(--teal);
+    }
+    .threshold-unit { font-size: 13px; color: rgba(255,255,255,0.4); margin-left: 3px; }
+    .threshold-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); margin-bottom: 4px;
+    }
+    .workout-floor {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+    }
+    .workout-floor strong { color: rgba(255,255,255,0.7); }
+    .workout-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+    .workout-example {
+      font-size: 10.5px;
+      color: var(--teal);
+      margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    /* ─── Worked example ─── */
+    .example-athlete {
+      background: var(--black);
+      border: 1px solid rgba(18,191,191,0.2);
+      border-radius: 10px;
+      padding: 28px;
+      margin-top: 32px;
+    }
+    .example-label {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 18px;
+    }
+    .example-inputs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .example-input-cell { text-align: center; }
+    .example-input-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px; color: var(--white); line-height: 1;
+    }
+    .example-input-val span { font-size: 16px; color: rgba(255,255,255,0.4); }
+    .example-input-name {
+      font-size: 10px; color: rgba(255,255,255,0.4);
+      letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px;
+    }
+    .example-divider {
+      border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0 0 20px;
+    }
+    .example-results {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .example-result-cell {
+      border: 1px solid rgba(18,191,191,0.15);
+      border-radius: 6px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .example-result-type {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 6px;
+    }
+    .example-result-hr {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px; color: var(--white); line-height: 1;
+    }
+    .example-result-hr span { font-size: 13px; color: rgba(255,255,255,0.35); }
+    .example-result-floor {
+      font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 4px;
+    }
+
+    /* ─── Figure sections ─── */
+    .figure-feature {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--pad);
+      align-items: center;
+      margin-top: 48px;
+    }
+    .figure-feature + .figure-feature { margin-top: 40px; }
+    .figure-feature.flip .fig-img  { order: 2; }
+    .figure-feature.flip .fig-text { order: 1; }
+
+    .fig-img {
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      cursor: pointer;
+      transition: transform .28s cubic-bezier(.22,.68,0,1.2), box-shadow .28s;
+    }
+    .fig-img:hover {
+      transform: scale(1.015);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    }
+    .fig-img img { width: 100%; height: auto; display: block; }
+
+    .fig-text {}
+    .fig-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px; line-height: 1.05; letter-spacing: 0.02em;
+      color: var(--ink); margin-bottom: 12px;
+    }
+    .fig-title span { color: var(--red); }
+    .fig-body { font-size: 13.5px; color: var(--ink2); line-height: 1.75; }
+    .fig-body p + p { margin-top: 12px; }
+    .fig-body strong { color: var(--ink); font-weight: 600; }
+
+    /* ─── Science / dark figure section ─── */
+    .fig-title-dark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px; line-height: 1.05; letter-spacing: 0.02em;
+      color: var(--white); margin-bottom: 12px;
+    }
+    .fig-title-dark span { color: var(--teal); }
+    .fig-body-dark { font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.75; }
+    .fig-body-dark p + p { margin-top: 12px; }
+    .fig-body-dark strong { color: var(--teal); font-weight: 600; }
+
+    .fig-img.dark-bg {
+      border-color: rgba(255,255,255,0.08);
+      background: #fff;
+    }
+
+    /* ─── Session plan table ─── */
+    .session-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 28px;
+      font-size: 12.5px;
+    }
+    .session-table th {
+      text-align: left;
+      padding: 8px 14px;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .session-table td {
+      padding: 9px 14px;
+      color: rgba(255,255,255,0.75);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .session-table td.rep-num { color: rgba(255,255,255,0.35); }
+    .session-table td.hr-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; color: var(--teal); letter-spacing: 0.04em;
+    }
+    .session-table td.drift-val { color: rgba(18,191,191,0.6); font-size: 11.5px; }
+
+    /* ─── Method section ─── */
+    .method-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .comp-list { list-style: none; margin-top: 24px; }
+    .comp-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .comp-item:last-child { border-bottom: none; }
+    .comp-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+    .comp-desc { font-size: 11.5px; color: var(--ink3); line-height: 1.5; }
+    .comp-src  { font-size: 10.5px; color: var(--ink3); text-align: right; white-space: nowrap; flex-shrink: 0; padding-top: 1px; }
+
+    .ref-list {
+      font-size: 12px; color: var(--ink3); line-height: 1.7;
+    }
+    .ref-list li { margin-bottom: 8px; padding-left: 14px; position: relative; }
+    .ref-list li::before {
+      content: '—';
+      position: absolute; left: 0;
+      color: var(--red);
+    }
+
+    /* ─── Limitations ─── */
+    .limit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .limit-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 18px;
+    }
+    .limit-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; color: var(--red); line-height: 1; margin-bottom: 6px;
+    }
+    .limit-title { font-size: 12.5px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+    .limit-body  { font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.55; }
+
+    /* ─── Footer ─── */
+    footer {
+      background: #1a0404;
+      padding: 60px var(--pad) 40px;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 32px;
+    }
+    .footer-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 42px; letter-spacing: 0.04em;
+      color: var(--white); margin-bottom: 12px;
+    }
+    .footer-brand span { color: var(--teal); }
+    .footer-desc {
+      font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 240px;
+    }
+    .footer-col h4 {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); margin-bottom: 12px;
+    }
+    .footer-col p, .footer-col address {
+      font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.9; font-style: normal;
+    }
+    .footer-base {
+      max-width: var(--max);
+      margin: 32px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 11px; color: rgba(255,255,255,0.25);
+      display: flex; justify-content: space-between;
+    }
+
+    /* ─── Lightbox ─── */
+    .lb-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(10,0,0,0.7);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      align-items: center; justify-content: center;
+      padding: 32px; opacity: 0; transition: opacity .22s;
+    }
+    .lb-overlay.open  { display: flex; }
+    .lb-overlay.visible { opacity: 1; }
+    .lb-panel {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: min(90vw, 900px);
+      max-height: 88vh;
+      transform: scale(.95);
+      transition: transform .25s cubic-bezier(.22,.68,0,1.1);
+      position: relative;
+    }
+    .lb-overlay.visible .lb-panel { transform: scale(1); }
+    .lb-panel img { width: 100%; height: auto; display: block; max-height: 88vh; object-fit: contain; }
+    .lb-close {
+      position: absolute; top: 12px; right: 14px;
+      background: rgba(0,0,0,0.6); border: none;
+      color: #fff; font-size: 18px; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .lb-close:hover { background: rgba(0,0,0,0.85); }
+
+    /* ─── Scroll reveal ─── */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .65s cubic-bezier(.22,.68,0,1), transform .65s cubic-bezier(.22,.68,0,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 720px) {
+      :root { --pad: 18px; --diag: 40px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+      .hero-wordmark { font-size: 72px; }
+      .hero-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(205,11,11,0.3); padding-top: 24px; }
+      .hero-stats { grid-template-columns: 1fr 1fr; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .algo-grid { grid-template-columns: 1fr; }
+      .workout-grid { grid-template-columns: 1fr 1fr; }
+      .figure-feature, .figure-feature.flip { grid-template-columns: 1fr; }
+      .figure-feature .fig-img, .figure-feature.flip .fig-img { order: 1 !important; }
+      .figure-feature .fig-text, .figure-feature.flip .fig-text { order: 2 !important; }
+      .example-inputs { grid-template-columns: 1fr 1fr; }
+      .example-results { grid-template-columns: 1fr 1fr; }
+      .method-grid { grid-template-columns: 1fr; gap: 32px; }
+      .limit-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .display-heading { font-size: 52px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">Recov<span>HR</span></div>
+  <a href="#problem"  onclick="closeSidebar()">The Problem</a>
+  <a href="#algorithm" onclick="closeSidebar()">Algorithm</a>
+  <a href="#workouts" onclick="closeSidebar()">Workout Types</a>
+  <a href="#science"  onclick="closeSidebar()">The Science</a>
+  <a href="#method"   onclick="closeSidebar()">Method</a>
+  <a href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Paper ↗</a>
+</div>
+
+<div class="nav-spacer"></div>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">Recov<span>HR</span></a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#algorithm">Algorithm</a>
+      <a href="#workouts">Workout Types</a>
+      <a href="#science">The Science</a>
+      <a href="#method">Method</a>
+      <a class="nav-paper" href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Paper ↗</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">recovhr.com · Luke Popler · 2026</div>
+      <div class="hero-wordmark">Recov<span>HR</span></div>
+      <div class="hero-tagline">Know when to go again.</div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-text">
+        <p>
+          Every interval workout has a window. Rest <strong>too little</strong> and you're over-stressing the system — rep quality collapses, adaptation suffers. Rest <strong>too long</strong> and you're losing potential fitness gains.
+        </p>
+        <p>
+          RecovHR is a heart rate reserve–based algorithm that tells you exactly when to start the next rep — calibrated to your body, your workout type, and where you are in the session.
+        </p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">4</div>
+          <div class="hero-stat-label">biometric inputs needed to run the algorithm</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">1</div>
+          <div class="hero-stat-label">number output — the HR to drop to before going again</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">4</div>
+          <div class="hero-stat-label">workout types with distinct recovery thresholds</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">8+</div>
+          <div class="hero-stat-label">published studies grounding the formula</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── The Problem ─── -->
+<div class="section-dark" id="problem">
+  <div class="section-inner">
+    <div class="section-label">The Problem</div>
+    <div class="display-heading">The Rest<br><span>Window</span></div>
+    <p class="problem-intro">
+      Clock-based rest intervals — "jog 200m," "wait 90 seconds" — don't adapt to you. A trained runner with a resting HR of 42 bpm recovers to a physiologically ready state in half the time of a recreational runner at 68 bpm. A fixed prescription <strong>systematically overtrians or undertrains</strong> one of them every single session.
+    </p>
+    <div class="problem-grid reveal">
+      <div class="problem-card bad">
+        <div class="problem-card-label bad">Too Little Rest</div>
+        <div class="problem-card-title">Over-stressed</div>
+        <div class="problem-card-body">Heart rate is still near 80% HRmax. Phosphocreatine only ~50% restored. Blood lactate still rising. Each rep is harder than the last — not because you're working harder, but because you never recovered from the previous one. Session quality collapses by rep 4.</div>
+      </div>
+      <div class="problem-card good">
+        <div class="problem-card-label good">Too Much Rest</div>
+        <div class="problem-card-title">Undertrained</div>
+        <div class="problem-card-body">Heart rate near resting. Sympathetic nervous system fully withdrawn. The first 30–60 seconds of the next rep is wasted re-ramping toward target intensity. You're not accumulating VO2max time — you're just getting your heart started again. Training stimulus is diluted.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Algorithm ─── -->
+<div class="section-light" id="algorithm">
+  <div class="section-inner">
+    <div class="section-label light">The Algorithm</div>
+    <div class="display-heading dark">Heart Rate<br><span class="red">Reserve</span></div>
+    <div class="algo-grid">
+      <div>
+        <p class="section-body">
+          RecovHR uses the Karvonen Heart Rate Reserve (HRR) formula — physiologically superior to raw %HRmax because it scales to the individual's usable cardiac range, not a population average.
+        </p>
+        <div class="algo-inputs reveal">
+          <div class="input-row">
+            <div class="input-symbol">HR<sub style="font-size:16px">max</sub></div>
+            <div class="input-detail">
+              <div class="input-name">Maximum Heart Rate</div>
+              <div class="input-desc">Measured directly, or estimated: 208 − (0.7 × age). Tanaka formula — more accurate than 220 − age across adult populations.</div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-symbol">HR<sub style="font-size:16px">rest</sub></div>
+            <div class="input-detail">
+              <div class="input-name">Resting Heart Rate</div>
+              <div class="input-desc">Measured seated, first thing in the morning. The single most individualizing input — two runners with the same HRmax can have 30 bpm of resting HR difference.</div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-symbol">LTHR</div>
+            <div class="input-detail">
+              <div class="input-name">Lactate Threshold Heart Rate</div>
+              <div class="input-desc">30-minute all-out time trial — average HR of the final 20 minutes. Or estimated as 87% × HRmax. Determines which workout type you're doing.</div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-symbol">Age</div>
+            <div class="input-detail">
+              <div class="input-name">Age</div>
+              <div class="input-desc">Only required if HRmax is not directly measured. Used in the Tanaka formula to estimate HRmax.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="formula-box reveal">
+          <div class="formula-label">Step 1 — Heart Rate Reserve</div>
+          <div class="formula">
+            <span class="f-var">HRR</span> <span class="f-eq">=</span> HR<sub>max</sub> <span class="f-op">−</span> HR<sub>rest</sub>
+          </div>
+          <div class="formula-note" style="margin-top:8px; margin-bottom:24px;">Your usable cardiac range — from minimal to maximal output.</div>
+
+          <div class="formula-label">Step 2 — Recovery Threshold</div>
+          <div class="formula">
+            <span class="f-var">Threshold</span> <span class="f-eq">=</span> (<span class="f-var">HRR</span> <span class="f-op">×</span> <span class="f-var">f</span>) <span class="f-op">+</span> HR<sub>rest</sub>
+          </div>
+          <div class="formula-note" style="margin-top:8px; margin-bottom:24px;">where <strong>f</strong> is the HRR fraction for your workout type (see below).</div>
+
+          <div class="formula-label">Step 3 — Cardiac Drift Correction</div>
+          <div class="formula">
+            <span class="f-var">Adjusted</span> <span class="f-eq">=</span> Threshold <span class="f-op">+</span> (n<span class="f-op">−</span>1) <span class="f-op">×</span> 1.5
+          </div>
+          <div class="formula-note">Applied from rep 3 onward. n = current rep number. Prevents late-rep thresholds from becoming artificially difficult due to progressive cardiac drift (+1–2 bpm/rep from thermoregulation and dehydration).</div>
+        </div>
+
+        <div class="formula-box reveal" style="margin-top:14px; background: #1a0808;">
+          <div class="formula-label">Ready to go when:</div>
+          <div class="formula" style="font-size:18px; line-height:2;">
+            <span class="f-var">current HR</span> <span class="f-op">≤</span> <span class="f-var">Adjusted</span><br>
+            <span class="f-op">AND</span> elapsed rest <span class="f-op">≥</span> <span class="f-var">min floor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Worked example -->
+    <div class="example-athlete reveal" style="margin-top:48px;">
+      <div class="example-label">Worked Example · Trained runner, age 32</div>
+      <div class="example-inputs">
+        <div class="example-input-cell">
+          <div class="example-input-val">188 <span>bpm</span></div>
+          <div class="example-input-name">HRmax</div>
+        </div>
+        <div class="example-input-cell">
+          <div class="example-input-val">48 <span>bpm</span></div>
+          <div class="example-input-name">HRrest</div>
+        </div>
+        <div class="example-input-cell">
+          <div class="example-input-val">163 <span>bpm</span></div>
+          <div class="example-input-name">LTHR</div>
+        </div>
+        <div class="example-input-cell">
+          <div class="example-input-val">140 <span>bpm</span></div>
+          <div class="example-input-name">HRR</div>
+        </div>
+      </div>
+      <hr class="example-divider">
+      <div class="example-results">
+        <div class="example-result-cell">
+          <div class="example-result-type">VO2max</div>
+          <div class="example-result-hr">107 <span>bpm</span></div>
+          <div class="example-result-floor">Min 90s · f = 0.42</div>
+        </div>
+        <div class="example-result-cell">
+          <div class="example-result-type">LT</div>
+          <div class="example-result-hr">118 <span>bpm</span></div>
+          <div class="example-result-floor">Min 60s · f = 0.50</div>
+        </div>
+        <div class="example-result-cell">
+          <div class="example-result-type">Speed</div>
+          <div class="example-result-hr">97 <span>bpm</span></div>
+          <div class="example-result-floor">Min 120s · f = 0.35</div>
+        </div>
+        <div class="example-result-cell">
+          <div class="example-result-type">Easy</div>
+          <div class="example-result-hr">101 <span>bpm</span></div>
+          <div class="example-result-floor">Min 30s · f = 0.38</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Workout Types ─── -->
+<div class="section-dark" id="workouts">
+  <div class="section-inner">
+    <div class="section-label">Workout Types</div>
+    <div class="display-heading">Four<br><span>Workouts.</span><br>Four Thresholds.</div>
+    <p class="section-body light" style="margin-top:16px;">Different training intensities produce different physiological demands — and different recovery needs. RecovHR applies distinct HRR fractions to match the recovery threshold to the actual stress of the work.</p>
+
+    <div class="workout-grid reveal">
+      <div class="workout-card">
+        <div class="workout-card-top">
+          <div class="workout-card-type">VO2MAX</div>
+          <div class="workout-card-effort">90–100% HRmax · 3–5 min reps</div>
+        </div>
+        <div class="workout-card-body">
+          <div class="threshold-label">HRR Fraction</div>
+          <div class="threshold-num">0.42 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
+          <div class="workout-floor">Min rest: <strong>90 seconds</strong></div>
+          <div class="workout-desc">Deepest aerobic recovery. Incomplete recovery is intentional — preserves elevated cardiac stress across the session. Aligns with the 4×4 Norwegian protocol's upper bound.</div>
+          <div class="workout-example">400m–1600m repeats · 5K race effort</div>
+        </div>
+      </div>
+
+      <div class="workout-card">
+        <div class="workout-card-top teal">
+          <div class="workout-card-type">LT</div>
+          <div class="workout-card-effort">88–97% LTHR · 8–20 min reps</div>
+        </div>
+        <div class="workout-card-body">
+          <div class="threshold-label">HRR Fraction</div>
+          <div class="threshold-num">0.50 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
+          <div class="workout-floor">Min rest: <strong>60 seconds</strong></div>
+          <div class="workout-desc">Shorter recovery needed — effort didn't drive HR to maximum. The goal is partial recovery that preserves the lactate accumulation signal driving mitochondrial adaptation.</div>
+          <div class="workout-example">Tempo intervals · cruise intervals</div>
+        </div>
+      </div>
+
+      <div class="workout-card">
+        <div class="workout-card-top" style="background:#5a0000;">
+          <div class="workout-card-type">Speed</div>
+          <div class="workout-card-effort">Max effort · sub-30s reps</div>
+        </div>
+        <div class="workout-card-body">
+          <div class="threshold-label">HRR Fraction</div>
+          <div class="threshold-num">0.35 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
+          <div class="workout-floor">Min rest: <strong>120 seconds</strong></div>
+          <div class="workout-desc">HR lags reality by 30–60s for sprint work. The clock floor is primary here — it maps to ~93% PCr resynthesis. HR threshold is a confirmation signal only.</div>
+          <div class="workout-example">Strides · hill sprints · 100–200m reps</div>
+        </div>
+      </div>
+
+      <div class="workout-card">
+        <div class="workout-card-top" style="background:#2a5a5a;">
+          <div class="workout-card-type">Easy</div>
+          <div class="workout-card-effort">65–78% HRmax · aerobic effort</div>
+        </div>
+        <div class="workout-card-body">
+          <div class="threshold-label">HRR Fraction</div>
+          <div class="threshold-num">0.38 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
+          <div class="workout-floor">Min rest: <strong>30 seconds</strong></div>
+          <div class="workout-desc">HR rarely approaches maximum. Primary use is monitoring the work interval itself — preventing aerobic surges from drifting too high and crossing into threshold work.</div>
+          <div class="workout-example">Aerobic fartlek · relaxed surges</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session plan table -->
+    <div class="reveal" style="margin-top:48px;">
+      <div class="section-label">Session Plan · 8×400m VO2max · Same athlete as above</div>
+      <table class="session-table">
+        <thead>
+          <tr>
+            <th>Rep</th>
+            <th>Base threshold</th>
+            <th>Drift correction</th>
+            <th>Start when HR ≤</th>
+            <th>Min rest</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="rep-num">1</td><td>107 bpm</td><td class="drift-val">—</td><td class="hr-val">107</td><td>90s</td></tr>
+          <tr><td class="rep-num">2</td><td>107 bpm</td><td class="drift-val">—</td><td class="hr-val">107</td><td>90s</td></tr>
+          <tr><td class="rep-num">3</td><td>107 bpm</td><td class="drift-val">+3.0 bpm</td><td class="hr-val">110</td><td>90s</td></tr>
+          <tr><td class="rep-num">4</td><td>107 bpm</td><td class="drift-val">+4.5 bpm</td><td class="hr-val">112</td><td>90s</td></tr>
+          <tr><td class="rep-num">5</td><td>107 bpm</td><td class="drift-val">+6.0 bpm</td><td class="hr-val">113</td><td>90s</td></tr>
+          <tr><td class="rep-num">6</td><td>107 bpm</td><td class="drift-val">+7.5 bpm</td><td class="hr-val">115</td><td>90s</td></tr>
+          <tr><td class="rep-num">7</td><td>107 bpm</td><td class="drift-val">+9.0 bpm</td><td class="hr-val">116</td><td>90s</td></tr>
+          <tr><td class="rep-num">8</td><td>107 bpm</td><td class="drift-val">+10.5 bpm</td><td class="hr-val">118</td><td>90s</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:10px;">Without drift correction, rep 8 would require ≈45–75 extra seconds of rest to reach the same 107 bpm threshold — artificially extending recovery and diluting late-session training stimulus.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Science ─── -->
+<div class="section-light" id="science">
+  <div class="section-inner">
+    <div class="section-label light">The Science</div>
+    <div class="display-heading dark">Why These<br><span class="red">Numbers</span></div>
+
+    <div class="figure-feature reveal">
+      <div class="fig-img">
+        <img src="figures/fig1_recovery_curve.png" alt="Heart rate recovery curve and RecovHR thresholds" loading="lazy">
+      </div>
+      <div class="fig-text">
+        <div class="fig-title">The Recovery <span>Curve</span></div>
+        <div class="fig-body">
+          <p>After a hard effort, heart rate follows an exponential decay. The <strong>fast phase</strong> (first ~30s) is driven by parasympathetic reactivation. The <strong>slow phase</strong> (30s–3 min) is sympathetic withdrawal.</p>
+          <p>Each workout type's threshold corresponds to the point on this curve where the athlete's cardiac output can support another high-intensity ramp — not just that the heart is beating slower, but that it is capable of the rapid escalation the next rep demands.</p>
+          <p>The shaded region is the <strong>VO2max sweet spot</strong> — where you've recovered enough to go hard again but haven't waited so long that the training stimulus is lost.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="figure-feature flip reveal">
+      <div class="fig-img">
+        <img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs raw %HRmax comparison" loading="lazy">
+      </div>
+      <div class="fig-text">
+        <div class="fig-title">Why Not Just<br><span>% HRmax</span>?</div>
+        <div class="fig-body">
+          <p>At the same HRmax of 188 bpm, a highly trained runner with resting HR 38 bpm and a recreational runner at resting HR 68 bpm are in <strong>very different physiological states</strong> at "65% HRmax" (122 bpm).</p>
+          <p>The Karvonen formula corrects for this by anchoring recovery to the individual's usable cardiac range — not a population average. The difference in threshold can reach <strong>21 bpm</strong> between these athletes at the same raw percentage.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="figure-feature reveal">
+      <div class="fig-img">
+        <img src="figures/fig5_pcr_kinetics.png" alt="Phosphocreatine resynthesis kinetics" loading="lazy">
+      </div>
+      <div class="fig-text">
+        <div class="fig-title">The Clock<br><span>Floors</span></div>
+        <div class="fig-body">
+          <p>Phosphocreatine (PCr) is the immediate fuel for maximal efforts. Its resynthesis follows first-order kinetics with a half-life of ~30 seconds (Harris et al., 1976). <strong>87% restored at 90 seconds.</strong> 93% at 120 seconds.</p>
+          <p>RecovHR's minimum clock floors are pinned to these milestones — the VO2max floor at 90s (87% PCr), the speed floor at 120s (93% PCr). No matter how fast heart rate drops, these floors prevent starting a rep before the fuel is ready.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="figure-feature flip reveal">
+      <div class="fig-img">
+        <img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift correction across 8 reps" loading="lazy">
+      </div>
+      <div class="fig-text">
+        <div class="fig-title">Cardiac<br><span>Drift</span></div>
+        <div class="fig-body">
+          <p>In a 10-rep session, end-of-recovery heart rate rises <strong>1–2 bpm per rep</strong> due to thermoregulation, progressive dehydration, and plasma volume shifts. Without correction, a fixed threshold demands longer and longer rest in late reps.</p>
+          <p>RecovHR's drift correction adds 1.5 bpm per completed rep from rep 3 onward — raising the threshold to match where HR actually sits, not where it would sit without accumulated fatigue. By rep 8, the correction is <strong>+10.5 bpm</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Method ─── -->
+<div class="section-dark" id="method">
+  <div class="section-inner">
+    <div class="section-label">Method</div>
+    <div class="display-heading">Index<br><span>Construction</span></div>
+    <div class="method-grid" style="margin-top:32px;">
+      <div>
+        <p class="section-body light">The RecovHR formula is derived from published HIIT physiology literature. Every parameter — HRR fraction, drift constant, minimum floor — has a named source and rationale. No proprietary data. No black box.</p>
+        <ul class="comp-list" style="margin-top:28px;">
+          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+            <div>
+              <div class="comp-name" style="color:var(--white);">Karvonen HRR Formula</div>
+              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">Foundation of all threshold calculations. Scales to individual usable cardiac range rather than population-average %HRmax.</div>
+            </div>
+            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Karvonen et al., 1957</div>
+          </li>
+          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+            <div>
+              <div class="comp-name" style="color:var(--white);">VO2max HRR Fraction (0.42)</div>
+              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">Derived from the 4×4 Norwegian protocol's 70% HRmax active recovery upper bound, converted to HRR-based expression.</div>
+            </div>
+            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Helgerud et al., 2007<br>Buchheit & Laursen, 2013</div>
+          </li>
+          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+            <div>
+              <div class="comp-name" style="color:var(--white);">PCr Resynthesis Kinetics</div>
+              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">First-order kinetics, τ ≈ 43.7s. Basis for minimum clock floors for all workout types.</div>
+            </div>
+            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Harris et al., 1976<br>Glaister, 2005</div>
+          </li>
+          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+            <div>
+              <div class="comp-name" style="color:var(--white);">Cardiac Drift Constant (1.5 bpm/rep)</div>
+              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">Empirical mean from middle-distance runner interval study. Applied from rep 3 onward to correct progressive threshold shift.</div>
+            </div>
+            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Rampinini et al., 2015</div>
+          </li>
+          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+            <div>
+              <div class="comp-name" style="color:var(--white);">Tanaka HRmax Estimate</div>
+              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">208 − 0.7 × age. Lower mean absolute error than 220 − age across adult populations, used when measured HRmax unavailable.</div>
+            </div>
+            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Tanaka et al., 2001</div>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <div style="margin-bottom:28px;">
+          <div class="section-label" style="margin-bottom:12px;">Limitations</div>
+          <div class="limit-grid">
+            <div class="limit-card">
+              <div class="limit-num">1</div>
+              <div class="limit-title">HR lags for sprint work</div>
+              <div class="limit-body">HR peaks 30–60s after a sub-30s rep ends. Clock floor governs; HR is confirmation only for speed reps.</div>
+            </div>
+            <div class="limit-card">
+              <div class="limit-num">2</div>
+              <div class="limit-title">Drift constant is a mean</div>
+              <div class="limit-body">1.5 bpm/rep derived from one study. Heat and dehydration can push this to 2–3 bpm/rep.</div>
+            </div>
+            <div class="limit-card">
+              <div class="limit-num">3</div>
+              <div class="limit-title">LTHR estimation range</div>
+              <div class="limit-body">87% × HRmax spans 80–92% in literature. Field test strongly preferred for accurate workout-type classification.</div>
+            </div>
+            <div class="limit-card">
+              <div class="limit-num">4</div>
+              <div class="limit-title">No RCT validation</div>
+              <div class="limit-body">RecovHR has not been tested in a controlled trial comparing HR-gated vs. clock-gated recovery on adaptation outcomes.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-bottom:12px;">Key References</div>
+        <ul class="ref-list" style="color:rgba(255,255,255,0.45);">
+          <li>Buchheit & Laursen — HIIT programming puzzle Parts I & II. <em>Sports Medicine</em> 2013.</li>
+          <li>Helgerud et al. — Aerobic high-intensity intervals improve VO2max. <em>MSSE</em> 2007.</li>
+          <li>Harris et al. — PCr resynthesis kinetics. <em>Pflügers Archiv</em> 1976.</li>
+          <li>Cole et al. — Heart-rate recovery and mortality. <em>NEJM</em> 1999.</li>
+          <li>Karvonen et al. — Effects of training on heart rate. <em>Ann Med Exp Biol Fenn</em> 1957.</li>
+          <li>Tanaka et al. — Age-predicted maximal heart rate revisited. <em>JACC</em> 2001.</li>
+          <li>Rampinini et al. — HR during interval recovery. <em>JSSM</em> 2015.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Recov<span>HR</span></div>
+      <div class="footer-desc">A heart rate reserve–based algorithm for individualized interval recovery prescription. Know when to go again.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Author</h4>
+      <address>
+        Luke Popler<br>
+        Sequoia High School<br>
+        Redwood City, California<br>
+        catlover125r@gmail.com
+      </address>
+    </div>
+    <div class="footer-col">
+      <h4>Publication</h4>
+      <p>
+        April 2026<br>
+        Full paper available<br>
+        Algorithm open source
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>Keywords</h4>
+      <p>
+        Interval training<br>
+        Heart rate recovery<br>
+        Karvonen formula<br>
+        VO2max · HIIT<br>
+        Lactate threshold
+      </p>
+    </div>
+  </div>
+  <div class="footer-base">
+    <span>RecovHR · Luke Popler · 2026</span>
+    <span>recovhr.com</span>
+  </div>
+</footer>
+
+<!-- ─── Lightbox ─── -->
+<div class="lb-overlay" id="lbOverlay">
+  <div class="lb-panel" id="lbPanel">
+    <button class="lb-close" id="lbClose">&#x2715;</button>
+    <img id="lbImg" src="" alt="">
+  </div>
+</div>
+
+<script>
+  // ── Scroll reveal ──
+  const revealEls = document.querySelectorAll('.reveal');
+  function updateReveal() {
+    const vh = window.innerHeight;
+    revealEls.forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < vh - 20 && r.bottom > 0) el.classList.add('visible');
+    });
+  }
+  updateReveal();
+  window.addEventListener('scroll', updateReveal, { passive: true });
+  window.addEventListener('resize', updateReveal, { passive: true });
+
+  // ── Smooth scroll ──
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href');
+      if (id === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+      const target = document.querySelector(id);
+      if (!target) return;
+      const navH = document.querySelector('nav').offsetHeight;
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH - 16, behavior: 'smooth' });
+    });
+  });
+
+  // ── Sidebar ──
+  const hamburger = document.getElementById('hamburger');
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebarOverlay');
+  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); hamburger.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow = ''; }
+  hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay.addEventListener('click', closeSidebar);
+
+  // ── Lightbox ──
+  const lbOverlay = document.getElementById('lbOverlay');
+  const lbImg     = document.getElementById('lbImg');
+  function openLb(src, alt) {
+    lbImg.src = src; lbImg.alt = alt;
+    lbOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => requestAnimationFrame(() => lbOverlay.classList.add('visible')));
+  }
+  function closeLb() {
+    lbOverlay.classList.remove('visible');
+    lbOverlay.addEventListener('transitionend', () => { lbOverlay.classList.remove('open'); document.body.style.overflow = ''; }, { once: true });
+  }
+  document.querySelectorAll('.fig-img').forEach(wrap => {
+    wrap.addEventListener('click', () => {
+      const img = wrap.querySelector('img');
+      if (img) openLb(img.src, img.alt);
+    });
+  });
+  document.getElementById('lbClose').addEventListener('click', closeLb);
+  lbOverlay.addEventListener('click', e => { if (e.target === lbOverlay) closeLb(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+</script>
+
+</body>
+</html>
