@@ -257,8 +257,7 @@
     .sci-img:hover { transform: scale(1.018); box-shadow: 0 16px 52px rgba(0,0,0,0.32); }
     .sci-img img { width: 100%; height: auto; display: block; }
 
-    .sci-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,127,127,0.1); border: 1px solid rgba(0,127,127,0.3); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 14px; }
-    .sci-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 36px; line-height: 0.95; color: var(--ink); margin-bottom: 10px; }
+.sci-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 36px; line-height: 0.95; color: var(--ink); margin-bottom: 10px; }
     .sci-headline span { color: var(--teal-d); }
 
     /* Big stat callout */
@@ -619,7 +618,6 @@
           <div class="sci-img"><img src="figures/fig1_recovery_curve.png" alt="HR recovery curve" loading="lazy"></div>
         </div>
         <div class="sci-text">
-          <div class="sci-icon">📈</div>
           <div class="sci-headline">The Recovery <span>Curve</span></div>
           <div class="sci-stat">
             <span class="sci-stat-num">90–140s</span>
@@ -639,7 +637,6 @@
           <div class="sci-img"><img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs %HRmax" loading="lazy"></div>
         </div>
         <div class="sci-text">
-          <div class="sci-icon">⚗️</div>
           <div class="sci-headline">Why Not <span>% HRmax?</span></div>
           <div class="sci-stat">
             <span class="sci-stat-num">21 bpm</span>
@@ -659,7 +656,6 @@
           <div class="sci-img"><img src="figures/fig5_pcr_kinetics.png" alt="PCr resynthesis" loading="lazy"></div>
         </div>
         <div class="sci-text">
-          <div class="sci-icon">⚡</div>
           <div class="sci-headline">The Clock <span>Floors</span></div>
           <div class="sci-stat">
             <span class="sci-stat-num">90s = 87%</span>
@@ -679,7 +675,6 @@
           <div class="sci-img"><img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift" loading="lazy"></div>
         </div>
         <div class="sci-text">
-          <div class="sci-icon">📡</div>
           <div class="sci-headline">Cardiac <span>Drift</span></div>
           <div class="sci-stat">
             <span class="sci-stat-num">+1.5 bpm</span>
@@ -806,6 +801,7 @@
   const svg  = document.getElementById('spine-svg');
   const path = document.getElementById('spine-path');
   let pathLen = 0;
+  let lookup  = []; // [{y, len}] — maps doc-Y to cumulative path length
 
   function top(id) {
     const el = document.getElementById(id);
@@ -818,7 +814,7 @@
     const docH = document.documentElement.scrollHeight;
     const L    = Math.round(W * 0.08);
     const R    = Math.round(W * 0.92);
-    const SV   = 200; // vertical half-span of each slash
+    const SV   = 200;
 
     const tP = top('problem');
     const tA = top('algorithm');
@@ -839,15 +835,40 @@
     svg.style.height = docH + 'px';
     pathLen = path.getTotalLength();
     path.style.strokeDasharray = pathLen;
+
+    // Build Y→length lookup so the tip tracks viewport position, not scroll %
+    lookup = [];
+    let cum = 0;
+    lookup.push({ y: pts[0][1], len: 0 });
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i][0] - pts[i-1][0];
+      const dy = pts[i][1] - pts[i-1][1];
+      cum += Math.sqrt(dx*dx + dy*dy);
+      lookup.push({ y: pts[i][1], len: cum });
+    }
+
     updateOffset();
   }
 
+  function lenAtDocY(targetY) {
+    if (!lookup.length) return 0;
+    if (targetY <= lookup[0].y) return 0;
+    if (targetY >= lookup[lookup.length-1].y) return lookup[lookup.length-1].len;
+    for (let i = 1; i < lookup.length; i++) {
+      if (targetY <= lookup[i].y) {
+        const t = (targetY - lookup[i-1].y) / (lookup[i].y - lookup[i-1].y);
+        return lookup[i-1].len + t * (lookup[i].len - lookup[i-1].len);
+      }
+    }
+    return pathLen;
+  }
+
   function updateOffset() {
-    if (!pathLen) return;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const pct = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-    const revealed = 0.12 + pct * 0.88;
-    path.style.strokeDashoffset = pathLen * (1 - Math.min(1, revealed));
+    if (!pathLen || !lookup.length) return;
+    // Tip always tracks slightly below the center of the viewport
+    const tipY   = window.scrollY + window.innerHeight * 0.62;
+    const revLen = lenAtDocY(Math.min(tipY, document.documentElement.scrollHeight));
+    path.style.strokeDashoffset = Math.max(0, pathLen - revLen);
   }
 
   window.addEventListener('load',   build);
