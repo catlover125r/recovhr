@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RecovHR — Know When to Go Again</title>
-  <meta name="description" content="A heart rate reserve algorithm for individualized interval recovery. Know exactly when to start your next rep.">
+  <meta name="description" content="A heart rate reserve algorithm for individualized interval recovery.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -29,40 +29,28 @@
       --pad:    40px;
     }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      font-size: 14px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; position: relative; }
     a { text-decoration: none; color: inherit; }
 
-    /* ══════════════════════
-       EKG SIDE LINE
-    ══════════════════════ */
-    #ekg-wrap {
-      position: fixed; left: 0; top: 0;
-      width: 56px; height: 100vh;
-      pointer-events: none; z-index: 200;
-      overflow: hidden;
+    /* ══ SPINE SVG ══ */
+    #spine-svg {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 8;
+      opacity: 0.18;
     }
-    #ekg-canvas { position: absolute; left: 0; top: 0; }
+    #spine-path {
+      stroke: #12BFBF;
+      stroke-width: 120;
+      fill: none;
+      stroke-linecap: butt;
+      stroke-linejoin: round;
+    }
 
-    /* ══════════════════════
-       NAV
-    ══════════════════════ */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
-      background: rgba(61,0,0,0.97);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(205,11,11,0.2);
-    }
-    .nav-inner {
-      max-width: var(--max); margin: 0 auto; padding: 0 var(--pad);
-      height: 54px; display: flex; justify-content: space-between; align-items: center;
-    }
+    /* ══ NAV ══ */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 300; background: rgba(61,0,0,0.97); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(205,11,11,0.2); }
+    .nav-inner { max-width: var(--max); margin: 0 auto; padding: 0 var(--pad); height: 54px; display: flex; justify-content: space-between; align-items: center; }
     .nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; color: #fff; }
     .nav-brand em { color: var(--teal); font-style: normal; }
     .nav-links { display: flex; gap: 28px; align-items: center; }
@@ -71,13 +59,11 @@
     .nav-cta { background: var(--teal); color: var(--black) !important; border-radius: 3px; padding: 7px 18px; }
     .nav-cta:hover { background: #0fa8a8; }
     .nav-spacer { height: 54px; }
-
     .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
     .hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; transition: transform .25s, opacity .25s; }
     .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
     .sob { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; }
     .sob.open { display: block; }
     .sidebar { position: fixed; top: 0; right: 0; width: 270px; height: 100dvh; background: var(--black); z-index: 500; display: flex; flex-direction: column; padding: 64px 0 32px; transform: translateX(100%); transition: transform .3s cubic-bezier(.22,.68,0,1); }
@@ -87,46 +73,45 @@
     .sidebar a { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.6); padding: 14px 28px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color .15s; }
     .sidebar a:hover { color: var(--teal); }
 
-    /* ══════════════════════
-       HERO — dark #3D0000
-    ══════════════════════ */
-    .hero {
-      position: relative; overflow: hidden;
-      background: var(--black);
-      min-height: 100vh; display: flex; align-items: center;
+    /* ══ SHARED ══ */
+    .section-inner { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+    .section-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 10px; }
+    .section-eyebrow.red   { color: var(--red); }
+    .section-eyebrow.teal  { color: var(--teal-d); }
+    .section-eyebrow.tealb { color: var(--teal); }
+    .section-heading { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: clamp(40px, 5vw, 68px); line-height: 0.95; letter-spacing: -0.01em; }
+    .section-heading.dark  { color: var(--ink); }
+    .section-heading.light { color: #fff; }
+
+    /* Section numbers — barn red ghost text */
+    .sec-num {
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(160px, 20vw, 300px);
+      color: var(--dark);
+      opacity: 0.055;
+      line-height: 0.85;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.02em;
     }
-    .hero::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(125deg, rgba(61,0,0,1) 40%, rgba(61,0,0,0.72) 100%);
-      z-index: 1;
-    }
-    .hero-glow {
-      position: absolute; top: -120px; right: -100px;
-      width: 600px; height: 600px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(18,191,191,0.07) 0%, transparent 70%);
-      z-index: 0; pointer-events: none;
-    }
-    /* Diagonal bottom cut — reveals light bg */
-    .hero::after {
-      content: '';
-      position: absolute; bottom: -2px; left: 0; right: 0; height: 100px;
-      background: var(--bg);
-      clip-path: polygon(0 100%, 100% 0, 100% 100%);
-      z-index: 2;
-    }
-    .hero-inner {
-      position: relative; z-index: 3;
-      max-width: var(--max); margin: 0 auto;
-      padding: 100px var(--pad) 160px;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
-    }
+
+    /* ══ HERO ══ */
+    .hero { position: relative; overflow: hidden; background: var(--black); min-height: 100vh; display: flex; align-items: center; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(125deg, rgba(61,0,0,1) 40%, rgba(61,0,0,0.72) 100%); z-index: 1; }
+    .hero-glow { position: absolute; top: -120px; right: -100px; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(18,191,191,0.07) 0%, transparent 70%); z-index: 0; pointer-events: none; }
+    .hero::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 100px; background: var(--bg); clip-path: polygon(0 100%, 100% 0, 100% 100%); z-index: 2; }
+    .hero-inner { position: relative; z-index: 3; max-width: var(--max); margin: 0 auto; padding: 100px var(--pad) 160px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
     .hero-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
     .hero-wordmark-wrap { display: inline-block; transform: skewX(-6deg); margin-bottom: 24px; }
-    .hero-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; font-size: clamp(56px, 8vw, 100px); line-height: 0.92; letter-spacing: -0.01em; color: #fff; text-transform: uppercase; }
+    .hero-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; font-size: 8vw; line-height: 0.9; letter-spacing: -0.01em; color: #fff; text-transform: uppercase; }
     .hero-headline em { color: var(--teal); display: block; font-style: italic; }
-    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; max-width: 380px; margin-top: 20px; margin-bottom: 32px; }
-    .hero-sub strong { color: rgba(255,255,255,0.85); }
+
+    /* 3 stat pills */
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; margin-top: 20px; }
+    .hero-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 5px 14px; }
+    .hero-pill.hl { color: var(--teal); border-color: rgba(18,191,191,0.4); }
 
     .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: var(--black); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px 32px; border-radius: 3px; transition: background .2s, transform .2s; }
     .btn-primary:hover { background: #0fa8a8; transform: translateY(-1px); }
@@ -139,271 +124,198 @@
     .hero-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--teal); line-height: 1; }
     .hero-stat-label { font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; margin-top: 4px; }
 
-    /* ══════════════════════
-       SHARED LAYOUT
-    ══════════════════════ */
-    .section-inner { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
-    .section-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 10px; }
-    .section-eyebrow.teal { color: var(--teal-d); }
-    .section-eyebrow.red  { color: var(--red); }
-    .section-eyebrow.teal-b { color: var(--teal); }
-    .section-heading { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: clamp(40px, 5vw, 68px); line-height: 0.95; letter-spacing: -0.01em; }
-    .section-heading.dark  { color: var(--ink); }
-    .section-heading.light { color: #fff; }
+    /* ══ PROBLEM ══ */
+    .problem-section { position: relative; background: var(--bg); padding: 80px var(--pad) 100px; overflow: hidden; }
+    /* Spine is on the RIGHT in problem — push content left */
+    .problem-section .section-inner { padding-right: 14%; }
 
-    /* ══════════════════════
-       PROBLEM — light bg, color as accents
-    ══════════════════════ */
-    .problem-section {
-      position: relative; background: var(--bg);
-      padding: 80px var(--pad) 100px; overflow: hidden;
-    }
-    /* Barn red diagonal slashes behind cards */
-    .problem-slash {
-      position: absolute; top: 0; bottom: 0; width: 320px;
-      background: var(--dark); opacity: 0.07; pointer-events: none;
-      clip-path: polygon(30% 0, 100% 0, 70% 100%, 0% 100%);
-    }
-    .problem-slash.left  { left: -60px; }
+    .problem-slash { position: absolute; top: 0; bottom: 0; width: 300px; background: var(--dark); opacity: 0.07; pointer-events: none; clip-path: polygon(30% 0, 100% 0, 70% 100%, 0% 100%); }
     .problem-slash.right { right: -60px; }
 
-    .prob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+    .prob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 44px; }
 
-    .prob-card {
-      background: var(--white); border-radius: 12px; padding: 44px 40px;
-      position: relative; overflow: hidden;
-      border: 1px solid var(--rule);
-      transition: transform .3s cubic-bezier(.22,.68,0,1.1), box-shadow .3s;
-    }
-    .prob-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
-    /* Left accent bar */
+    .prob-card { background: var(--white); border-radius: 12px; padding: 36px 32px; position: relative; overflow: hidden; border: 1px solid var(--rule); transition: transform .3s cubic-bezier(.22,.68,0,1.1), box-shadow .3s; }
+    .prob-card:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,0.09); }
     .prob-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; border-radius: 12px 0 0 12px; }
     .prob-card.bad::before  { background: var(--dark); }
     .prob-card.good::before { background: var(--teal); }
-    /* Corner slash */
-    .prob-card-slash { position: absolute; top: 0; right: 0; width: 160px; height: 160px; opacity: 0.06; clip-path: polygon(100% 0, 100% 100%, 0 0); }
+    .prob-card-slash { position: absolute; top: 0; right: 0; width: 140px; height: 140px; opacity: 0.05; clip-path: polygon(100% 0, 100% 100%, 0 0); }
     .prob-card.bad  .prob-card-slash { background: var(--dark); }
     .prob-card.good .prob-card-slash { background: var(--teal); }
 
-    .prob-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; width: fit-content; margin-bottom: 18px; }
-    .prob-tag.red  { background: rgba(122,0,0,0.1); color: var(--dark); }
-    .prob-tag.teal { background: rgba(18,191,191,0.1); color: var(--teal-d); }
+    .prob-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; width: fit-content; margin-bottom: 12px; }
+    .prob-tag.red  { background: rgba(122,0,0,0.08); color: var(--dark); }
+    .prob-tag.teal { background: rgba(18,191,191,0.08); color: var(--teal-d); }
 
-    .prob-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 54px; line-height: 0.95; margin-bottom: 18px; }
+    .prob-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 48px; line-height: 0.95; margin-bottom: 12px; }
     .prob-headline.red  { color: var(--dark); }
     .prob-headline.teal { color: var(--teal-d); }
 
-    .prob-body { font-size: 13.5px; color: var(--ink2); line-height: 1.8; }
-    .prob-body strong { color: var(--ink); font-weight: 600; }
+    .prob-body { font-size: 13px; color: var(--ink2); line-height: 1.7; }
+    .prob-body strong { color: var(--ink); }
 
-    .prob-stat { margin-top: 22px; font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.04em; line-height: 1; }
+    .prob-stat { margin-top: 18px; font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 0.04em; line-height: 1; }
     .prob-stat.red  { color: var(--dark); }
     .prob-stat.teal { color: var(--teal-d); }
-    .prob-stat-sub { font-size: 10.5px; color: var(--ink3); margin-top: 3px; }
+    .prob-stat-sub { font-size: 10px; color: var(--ink3); margin-top: 2px; }
 
-    /* Window callout between the two */
-    .prob-window {
-      grid-column: 1 / -1;
-      background: linear-gradient(135deg, rgba(18,191,191,0.08), rgba(18,191,191,0.04));
-      border: 1px solid rgba(18,191,191,0.2);
-      border-radius: 10px; padding: 24px 32px;
-      display: flex; align-items: center; gap: 20px;
-    }
-    .prob-window-icon { font-size: 28px; flex-shrink: 0; }
-    .prob-window-text { font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+    .prob-window { grid-column: 1 / -1; background: linear-gradient(135deg, rgba(18,191,191,0.07), rgba(18,191,191,0.03)); border: 1px solid rgba(18,191,191,0.2); border-radius: 10px; padding: 20px 28px; display: flex; align-items: center; gap: 16px; }
+    .prob-window-icon { font-size: 24px; flex-shrink: 0; }
+    .prob-window-text { font-size: 13px; color: var(--ink2); line-height: 1.65; }
     .prob-window-text strong { color: var(--teal-d); font-weight: 700; }
 
-    /* ══════════════════════
-       ALGORITHM — light bg, HUD dashboard
-    ══════════════════════ */
+    /* ══ ALGORITHM ══ */
     .algo-section { background: var(--bg); padding: 100px var(--pad) 120px; position: relative; overflow: hidden; }
+    /* Spine is on the LEFT in algorithm — push content right */
+    .algo-section .section-inner { padding-left: 14%; }
 
-    /* Input cards */
-    .inputs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
-    .input-card { border: 1px solid var(--rule); border-radius: 10px; padding: 22px; background: var(--white); transition: border-color .2s, box-shadow .2s; }
-    .input-card:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(18,191,191,0.1); }
-    .input-card-sym { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--black); line-height: 1; margin-bottom: 8px; }
-    .input-card-sym sub { font-size: 16px; }
-    .input-card-name { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
-    .input-card-desc { font-size: 11px; color: var(--ink3); line-height: 1.5; }
+    .inputs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 36px; }
+    .input-card { border: 1px solid var(--rule); border-radius: 10px; padding: 20px; background: var(--white); transition: border-color .2s, box-shadow .2s; }
+    .input-card:hover { border-color: var(--teal); box-shadow: 0 4px 14px rgba(18,191,191,0.1); }
+    .input-card-sym { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--black); line-height: 1; margin-bottom: 6px; }
+    .input-card-sym sub { font-size: 15px; }
+    .input-card-name { font-size: 11.5px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .input-card-desc { font-size: 10.5px; color: var(--ink3); line-height: 1.5; }
 
-    /* HUD Dashboard — floating dark card */
-    .dashboard {
-      background: rgba(61,0,0,0.97);
-      border-radius: 16px; padding: 40px;
-      margin-top: 40px;
-      position: relative; overflow: hidden;
-      border: 1px solid rgba(18,191,191,0.18);
-      box-shadow: 0 24px 72px rgba(61,0,0,0.3), 0 0 0 1px rgba(18,191,191,0.06);
-    }
-    /* Top teal stripe */
-    .dashboard::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--teal), var(--teal-d), transparent); border-radius: 16px 16px 0 0; }
-    /* Corner glow */
-    .dashboard::before { content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(18,191,191,0.09) 0%, transparent 70%); }
-
-    .dash-label { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
-    .dash-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 10px var(--teal); animation: pulse-dot 2s ease infinite; flex-shrink: 0; }
-    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.65); } }
-
-    .dash-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 24px; }
-    .dash-node { text-align: center; min-width: 110px; }
-    .dash-node-val { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--teal); line-height: 1; }
+    /* HUD Dashboard */
+    .dashboard { background: rgba(61,0,0,0.97); border-radius: 16px; padding: 36px; margin-top: 36px; position: relative; overflow: hidden; border: 1px solid rgba(18,191,191,0.18); box-shadow: 0 24px 72px rgba(61,0,0,0.3), 0 0 0 1px rgba(18,191,191,0.06); }
+    .dashboard::after  { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--teal), var(--teal-d), transparent); border-radius: 16px 16px 0 0; }
+    .dashboard::before { content: ''; position: absolute; top: -80px; right: -80px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(18,191,191,0.09) 0%, transparent 70%); }
+    .dash-label { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+    .dash-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 10px var(--teal); animation: pdot 2s ease infinite; flex-shrink: 0; }
+    @keyframes pdot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.3; transform:scale(.6); } }
+    .dash-flow { display: flex; align-items: center; flex-wrap: wrap; row-gap: 20px; }
+    .dash-node { text-align: center; min-width: 100px; }
+    .dash-node-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--teal); line-height: 1; }
     .dash-node-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-top: 3px; }
-    .dash-node-sub { font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 1px; }
-    .dash-op { text-align: center; min-width: 60px; }
-    .dash-op-sym { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: rgba(255,255,255,0.2); }
-    .dash-arrow { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 40px; color: var(--teal-d); font-size: 22px; opacity: 0.6; }
-
-    .dash-result {
-      background: rgba(18,191,191,0.12); border: 1px solid rgba(18,191,191,0.35);
-      border-radius: 10px; padding: 20px 28px; text-align: center; min-width: 150px;
-      box-shadow: 0 0 30px rgba(18,191,191,0.08);
-    }
-    .dash-result-val { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--teal); line-height: 1; text-shadow: 0 0 24px rgba(18,191,191,0.3); }
-    .dash-result-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); opacity: 0.7; margin-top: 4px; }
-
-    .dash-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 28px 0; }
-
-    .dash-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .dash-step { border-left: 2px solid rgba(18,191,191,0.25); padding-left: 16px; }
-    .dash-step-num { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--teal); opacity: 0.6; margin-bottom: 6px; }
-    .dash-step-formula { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 600; color: #fff; letter-spacing: 0.02em; margin-bottom: 4px; }
+    .dash-node-sub { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+    .dash-op { text-align: center; min-width: 50px; }
+    .dash-op-sym { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: rgba(255,255,255,0.2); }
+    .dash-arrow { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 36px; color: var(--teal-d); font-size: 20px; opacity: 0.6; }
+    .dash-result { background: rgba(18,191,191,0.12); border: 1px solid rgba(18,191,191,0.35); border-radius: 10px; padding: 18px 24px; text-align: center; min-width: 140px; box-shadow: 0 0 28px rgba(18,191,191,0.08); }
+    .dash-result-val { font-family: 'Bebas Neue', sans-serif; font-size: 50px; color: var(--teal); line-height: 1; text-shadow: 0 0 22px rgba(18,191,191,0.3); }
+    .dash-result-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); opacity: 0.7; margin-top: 3px; }
+    .dash-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 24px 0; }
+    .dash-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .dash-step { border-left: 2px solid rgba(18,191,191,0.25); padding-left: 14px; }
+    .dash-step-num { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--teal); opacity: 0.6; margin-bottom: 5px; }
+    .dash-step-formula { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 3px; }
     .dash-step-formula em { color: var(--teal); font-style: normal; }
-    .dash-step-body { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.55; }
+    .dash-step-body { font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.5; }
 
-    /* ══════════════════════
-       WORKOUT TYPES — dark
-    ══════════════════════ */
-    .workouts-section {
-      background: var(--black);
-      padding: 120px var(--pad) 100px;
-      position: relative; overflow: hidden;
-    }
-    /* Diagonal entry from light bg above */
-    .workouts-section::before {
-      content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 100px;
-      background: var(--black);
-      clip-path: polygon(0 100%, 100% 0, 100% 100%);
-    }
+    /* ══ WORKOUTS ══ */
+    .workouts-section { background: var(--black); padding: 120px var(--pad) 100px; position: relative; overflow: hidden; }
+    .workouts-section::before { content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 100px; background: var(--black); clip-path: polygon(0 100%, 100% 0, 100% 100%); }
 
-    .workouts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 48px; }
-    .wk-card { background: rgba(255,255,255,0.03); border-top: 3px solid transparent; padding: 32px 24px; transition: background .2s; }
+    .workouts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 44px; }
+    .wk-card { background: rgba(255,255,255,0.03); border-top: 3px solid transparent; padding: 28px 22px; transition: background .2s; }
     .wk-card:hover { background: rgba(255,255,255,0.06); }
     .wk-card.c-teal   { border-color: var(--teal); }
     .wk-card.c-teal-d { border-color: var(--teal-d); }
     .wk-card.c-red    { border-color: var(--red); }
     .wk-card.c-dark   { border-color: var(--dark); }
-    .wk-type { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 38px; color: #fff; line-height: 1; margin-bottom: 4px; }
-    .wk-effort { font-size: 9.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 20px; }
+    .wk-type { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 36px; color: #fff; line-height: 1; margin-bottom: 3px; }
+    .wk-effort { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 18px; }
     .wk-threshold-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 2px; }
-    .wk-threshold-val { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; }
+    .wk-threshold-val { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 1; }
     .wk-threshold-val.teal   { color: var(--teal); }
     .wk-threshold-val.teal-d { color: var(--teal-d); }
     .wk-threshold-val.red    { color: var(--red); }
     .wk-threshold-val.dark   { color: var(--dark); }
-    .wk-threshold-unit { font-size: 13px; color: rgba(255,255,255,0.3); margin-left: 2px; }
-    .wk-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
-    .wk-frac    { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
-    .wk-floor   { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .wk-threshold-unit { font-size: 12px; color: rgba(255,255,255,0.3); margin-left: 2px; }
+    .wk-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 14px 0; }
+    .wk-frac    { font-size: 10.5px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+    .wk-floor   { font-size: 10.5px; color: rgba(255,255,255,0.4); }
     .wk-floor strong { color: rgba(255,255,255,0.7); }
-    .wk-desc    { font-size: 11.5px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-top: 10px; }
-    .wk-example { font-size: 10px; color: var(--teal); opacity: 0.7; margin-top: 8px; font-weight: 500; }
+    .wk-desc    { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.55; margin-top: 8px; }
+    .wk-example { font-size: 9.5px; color: var(--teal); opacity: 0.7; margin-top: 7px; font-weight: 500; }
 
-    .session-block { margin-top: 60px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
-    .session-header { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+    .session-block { margin-top: 56px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+    .session-header { padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
     .session-header-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); }
-    .session-header-title { font-size: 12.5px; color: rgba(255,255,255,0.5); }
+    .session-header-title { font-size: 12px; color: rgba(255,255,255,0.5); }
     .session-table { width: 100%; border-collapse: collapse; }
-    .session-table th { padding: 10px 16px; font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .session-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12.5px; color: rgba(255,255,255,0.65); }
-    .td-rep   { color: rgba(255,255,255,0.25) !important; font-size: 11px !important; }
-    .td-hr    { font-family: 'Bebas Neue', sans-serif !important; font-size: 22px !important; color: var(--teal) !important; letter-spacing: 0.04em; }
-    .td-drift { color: rgba(18,191,191,0.5) !important; font-size: 11px !important; }
-    .session-note { padding: 10px 24px 14px; font-size: 10.5px; color: rgba(255,255,255,0.25); }
+    .session-table th { padding: 9px 15px; font-size: 8px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .session-table td { padding: 9px 15px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px; color: rgba(255,255,255,0.65); }
+    .td-rep   { color: rgba(255,255,255,0.25) !important; font-size: 10.5px !important; }
+    .td-hr    { font-family: 'Bebas Neue', sans-serif !important; font-size: 21px !important; color: var(--teal) !important; }
+    .td-drift { color: rgba(18,191,191,0.5) !important; font-size: 10.5px !important; }
+    .session-note { padding: 10px 22px 12px; font-size: 10px; color: rgba(255,255,255,0.25); }
 
-    /* ══════════════════════
-       SCIENCE — light bg, dark chart cards
-    ══════════════════════ */
+    /* ══ SCIENCE ══ */
     .science-section { background: var(--bg); padding: 100px var(--pad) 80px; position: relative; }
-    .science-section::before {
-      content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 80px;
-      background: var(--bg); clip-path: polygon(100% 0, 100% 100%, 0 100%);
-    }
-    .science-rows { margin-top: 60px; display: flex; flex-direction: column; gap: 64px; }
-    .science-row { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-    .science-row.flip .sci-img-wrap { order: 2; }
-    .science-row.flip .sci-text { order: 1; }
+    .science-section::before { content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 80px; background: var(--bg); clip-path: polygon(100% 0, 100% 100%, 0 100%); }
 
-    /* Chart card — dark, with barn red slash behind */
+    .science-rows { margin-top: 56px; display: flex; flex-direction: column; gap: 60px; }
+    .science-row { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
+    .science-row.flip .sci-img-wrap { order: 2; }
+    .science-row.flip .sci-text     { order: 1; }
+
     .sci-img-wrap { position: relative; }
-    .sci-img-slash {
-      position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
-      background: var(--dark); opacity: 0.14; border-radius: 14px; z-index: 0;
-      clip-path: polygon(7% 0, 100% 0, 93% 100%, 0% 100%);
-    }
-    .sci-img {
-      border-radius: 10px; overflow: hidden; background: #0d0002;
-      cursor: pointer; position: relative; z-index: 1;
-      transition: transform .3s cubic-bezier(.22,.68,0,1.15), box-shadow .3s;
-      box-shadow: 0 8px 36px rgba(0,0,0,0.22);
-    }
-    .sci-img:hover { transform: scale(1.018); box-shadow: 0 16px 56px rgba(0,0,0,0.35); }
+    .sci-img-slash { position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px; background: var(--dark); opacity: 0.13; border-radius: 14px; z-index: 0; clip-path: polygon(7% 0, 100% 0, 93% 100%, 0% 100%); }
+    .sci-img { border-radius: 10px; overflow: hidden; background: #0d0002; cursor: pointer; position: relative; z-index: 1; transition: transform .3s cubic-bezier(.22,.68,0,1.15), box-shadow .3s; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .sci-img:hover { transform: scale(1.018); box-shadow: 0 16px 52px rgba(0,0,0,0.32); }
     .sci-img img { width: 100%; height: auto; display: block; }
 
-    .sci-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,127,127,0.1); border: 1px solid rgba(0,127,127,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
-    .sci-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 38px; line-height: 0.95; color: var(--ink); margin-bottom: 14px; }
+    .sci-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,127,127,0.1); border: 1px solid rgba(0,127,127,0.3); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 14px; }
+    .sci-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 36px; line-height: 0.95; color: var(--ink); margin-bottom: 10px; }
     .sci-headline span { color: var(--teal-d); }
-    .sci-body { font-size: 13.5px; color: var(--ink2); line-height: 1.8; }
-    .sci-body p + p { margin-top: 12px; }
-    .sci-body strong { color: var(--ink); font-weight: 600; }
 
-    /* ══════════════════════
-       METHOD — dark
-    ══════════════════════ */
+    /* Big stat callout */
+    .sci-stat { margin: 14px 0 10px; }
+    .sci-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 44px; color: var(--teal-d); line-height: 1; display: block; }
+    .sci-stat-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink3); }
+
+    .sci-body-short { font-size: 13px; color: var(--ink2); line-height: 1.75; }
+
+    /* Learn more details */
+    details.learn-more { margin-top: 12px; }
+    details.learn-more summary { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal-d); cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px; }
+    details.learn-more summary::-webkit-details-marker { display: none; }
+    details.learn-more summary::after { content: '↓'; font-size: 10px; transition: transform .2s; display: inline-block; }
+    details.learn-more[open] summary::after { transform: rotate(180deg); }
+    details.learn-more .learn-body { font-size: 12px; color: var(--ink2); line-height: 1.7; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
+    details.learn-more .learn-body strong { color: var(--ink); }
+
+    /* ══ METHOD ══ */
     .method-section { background: var(--black); padding: 100px var(--pad) 80px; position: relative; }
     .method-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; background: var(--black); clip-path: polygon(0 0, 100% 100%, 0 100%); }
-
-    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 48px; align-items: start; }
-    .source-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-    .source-card { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; background: rgba(255,255,255,0.02); transition: border-color .2s; }
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 44px; align-items: start; }
+    .source-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .source-card { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; background: rgba(255,255,255,0.02); transition: border-color .2s; }
     .source-card:hover { border-color: rgba(18,191,191,0.25); }
-    .source-card-num  { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--teal); line-height: 1; min-width: 28px; }
-    .source-card-name { font-size: 12.5px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-    .source-card-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+    .source-card-num  { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--teal); line-height: 1; min-width: 24px; }
+    .source-card-name { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .source-card-desc { font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.5; }
     .source-card-ref  { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
-
-    .method-drawer { margin-top: 16px; }
-    .drawer-toggle { width: 100%; text-align: left; background: none; border: 1px solid rgba(18,191,191,0.2); border-radius: 6px; padding: 14px 20px; color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; transition: background .18s; }
+    .method-drawer { margin-top: 14px; }
+    .drawer-toggle { width: 100%; text-align: left; background: none; border: 1px solid rgba(18,191,191,0.2); border-radius: 6px; padding: 13px 18px; color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; transition: background .18s; }
     .drawer-toggle:hover { background: rgba(18,191,191,0.06); }
     .drawer-toggle .arrow { transition: transform .25s; }
     .drawer-toggle.open .arrow { transform: rotate(180deg); }
     .drawer-body { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
     .drawer-body.open { max-height: 600px; }
-    .drawer-inner { padding: 20px 0 8px; }
+    .drawer-inner { padding: 18px 0 8px; }
     .limit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .limit-card { border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; padding: 16px; }
-    .limit-num   { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--red); line-height: 1; margin-bottom: 5px; }
-    .limit-title { font-size: 11.5px; font-weight: 600; color: #fff; margin-bottom: 3px; }
-    .limit-body  { font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.5; }
-    .ref-list { list-style: none; margin-top: 16px; }
-    .ref-list li { font-size: 11px; color: rgba(255,255,255,0.35); padding: 7px 0 7px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; line-height: 1.55; }
+    .limit-card { border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; padding: 14px; }
+    .limit-num   { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--red); line-height: 1; margin-bottom: 4px; }
+    .limit-title { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .limit-body  { font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+    .ref-list { list-style: none; margin-top: 14px; }
+    .ref-list li { font-size: 10.5px; color: rgba(255,255,255,0.35); padding: 6px 0 6px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; line-height: 1.5; }
     .ref-list li::before { content: '—'; position: absolute; left: 0; color: var(--teal); opacity: 0.5; }
 
-    /* ══════════════════════
-       FOOTER
-    ══════════════════════ */
-    footer { background: #0d0002; padding: 60px var(--pad) 40px; }
-    .footer-top { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 0.04em; color: #fff; margin-bottom: 10px; }
+    /* ══ FOOTER ══ */
+    footer { background: #0d0002; padding: 56px var(--pad) 36px; }
+    .footer-top { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.04em; color: #fff; margin-bottom: 8px; }
     .footer-brand em { color: var(--teal); font-style: normal; }
-    .footer-tagline { font-size: 11.5px; color: rgba(255,255,255,0.35); line-height: 1.7; max-width: 220px; }
-    .footer-col h4 { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 12px; }
-    .footer-col p, .footer-col address { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.9; font-style: normal; }
-    .footer-base { max-width: var(--max); margin: 24px auto 0; font-size: 10.5px; color: rgba(255,255,255,0.2); display: flex; justify-content: space-between; }
+    .footer-tagline { font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.7; max-width: 220px; }
+    .footer-col h4 { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
+    .footer-col p, .footer-col address { font-size: 11.5px; color: rgba(255,255,255,0.45); line-height: 1.85; font-style: normal; }
+    .footer-base { max-width: var(--max); margin: 20px auto 0; font-size: 10px; color: rgba(255,255,255,0.2); display: flex; justify-content: space-between; }
 
-    /* ══════════════════════
-       LIGHTBOX
-    ══════════════════════ */
+    /* ══ LIGHTBOX ══ */
     .lb-ov { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(10,0,0,0.9); backdrop-filter: blur(20px); align-items: center; justify-content: center; padding: 28px; opacity: 0; transition: opacity .22s; }
     .lb-ov.open { display: flex; }
     .lb-ov.vis  { opacity: 1; }
@@ -412,31 +324,30 @@
     .lb-panel img { width: 100%; height: auto; display: block; max-height: 88vh; object-fit: contain; }
     .lb-x { position: absolute; top: 10px; right: 12px; background: rgba(0,0,0,0.6); border: none; color: #fff; font-size: 17px; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-    /* ══════════════════════
-       SCROLL REVEAL
-    ══════════════════════ */
-    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .65s cubic-bezier(.22,.68,0,1), transform .65s cubic-bezier(.22,.68,0,1); }
+    /* ══ SCROLL REVEAL ══ */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s cubic-bezier(.22,.68,0,1), transform .6s cubic-bezier(.22,.68,0,1); }
     .reveal.vis { opacity: 1; transform: translateY(0); }
     .reveal-d1 { transition-delay: .08s; }
     .reveal-d2 { transition-delay: .16s; }
     .reveal-d3 { transition-delay: .24s; }
     .reveal-d4 { transition-delay: .32s; }
 
-    /* ══════════════════════
-       MOBILE
-    ══════════════════════ */
+    /* ══ MOBILE ══ */
     @media (max-width: 768px) {
       :root { --pad: 20px; }
-      #ekg-wrap { display: none; }
-      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
-      .hero-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(205,11,11,0.3); padding-top: 28px; }
+      #spine-svg { display: none; }
+      .hero-inner { grid-template-columns: 1fr; gap: 36px; }
+      .hero-headline { font-size: clamp(52px, 14vw, 80px); }
+      .hero-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(205,11,11,0.3); padding-top: 24px; }
+      .problem-section .section-inner,
+      .algo-section .section-inner { padding-left: 0; padding-right: 0; }
       .prob-grid { grid-template-columns: 1fr; }
       .inputs-grid { grid-template-columns: 1fr 1fr; }
       .workouts-grid { grid-template-columns: 1fr 1fr; }
       .science-row, .science-row.flip { grid-template-columns: 1fr; }
       .science-row .sci-img-wrap, .science-row.flip .sci-img-wrap { order: 1 !important; }
       .science-row .sci-text, .science-row.flip .sci-text { order: 2 !important; }
-      .method-grid { grid-template-columns: 1fr; gap: 40px; }
+      .method-grid { grid-template-columns: 1fr; gap: 36px; }
       .limit-grid { grid-template-columns: 1fr; }
       .footer-top { grid-template-columns: 1fr 1fr; }
       .dash-steps { grid-template-columns: 1fr; }
@@ -447,10 +358,10 @@
 </head>
 <body>
 
-<!-- EKG Canvas -->
-<div id="ekg-wrap">
-  <canvas id="ekg-canvas"></canvas>
-</div>
+<!-- ══ SPINE SVG (path built in JS) ══ -->
+<svg id="spine-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <path id="spine-path"/>
+</svg>
 
 <!-- Sidebar -->
 <div class="sob" id="sob"></div>
@@ -482,7 +393,7 @@
   </div>
 </nav>
 
-<!-- ════════ HERO ════════ -->
+<!-- ════ HERO ════ -->
 <div class="hero" id="hero">
   <div class="hero-glow"></div>
   <div class="hero-inner">
@@ -493,12 +404,14 @@
           Know when<br>to <em>go again.</em>
         </div>
       </div>
-      <p class="hero-sub">
-        Every interval has a window. <strong>RecovHR</strong> computes your exact recovery heart rate threshold — calibrated to your body, your workout type, and where you are in the session.
-      </p>
+      <div class="hero-pills">
+        <span class="hero-pill hl">Calibrated to You</span>
+        <span class="hero-pill">Driven by HRR</span>
+        <span class="hero-pill">Zero Guesswork</span>
+      </div>
       <div>
         <a class="btn-primary" href="#algorithm">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           See the Algorithm
         </a>
         <a class="btn-secondary" href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Read the Paper ↗</a>
@@ -507,54 +420,49 @@
     <div class="hero-right">
       <div class="hero-stat-grid">
         <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">biometric inputs</div></div>
-        <div class="hero-stat"><div class="hero-stat-num">1</div><div class="hero-stat-label">number output per rep</div></div>
-        <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">distinct workout thresholds</div></div>
-        <div class="hero-stat"><div class="hero-stat-num">8+</div><div class="hero-stat-label">published studies as basis</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">1</div><div class="hero-stat-label">output per rep</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">workout thresholds</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">8+</div><div class="hero-stat-label">published sources</div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════ PROBLEM ════════ -->
+<!-- ════ PROBLEM ════ -->
 <div class="problem-section" id="problem">
-  <div class="problem-slash left"></div>
   <div class="problem-slash right"></div>
-  <div class="problem-inner section-inner">
+  <div class="sec-num" style="top:-20px; right:-10px;">01</div>
+  <div class="section-inner">
     <div class="section-eyebrow red">The Problem</div>
     <div class="section-heading dark">Two Ways to <em style="color:var(--dark); font-style:italic;">Fail</em></div>
     <div class="prob-grid">
       <div class="prob-card bad reveal">
         <div class="prob-card-slash"></div>
         <div class="prob-tag red">Too Little Rest</div>
-        <div class="prob-headline red">Over-<br>Stressed</div>
-        <p class="prob-body">
-          HR still at 80% HRmax. Phosphocreatine only <strong>~50% restored</strong>. Blood lactate still rising. Each rep is harder than the last — not because you're working harder, but because you never recovered from the previous one.
-        </p>
+        <div class="prob-headline red">Too Soon</div>
+        <p class="prob-body">PCr only ~50% restored. <strong>Session quality collapses by rep 4.</strong></p>
         <div class="prob-stat red">3–4 reps</div>
-        <div class="prob-stat-sub">before session quality collapses</div>
+        <div class="prob-stat-sub">before quality collapse</div>
       </div>
       <div class="prob-card good reveal reveal-d1">
         <div class="prob-card-slash"></div>
         <div class="prob-tag teal">Too Much Rest</div>
-        <div class="prob-headline teal">Under-<br>Trained</div>
-        <p class="prob-body">
-          HR near resting. Sympathetic system fully withdrawn. The first <strong>30–60 seconds</strong> of the next rep is wasted re-ramping toward target intensity. Training stimulus is systematically diluted.
-        </p>
+        <div class="prob-headline teal">Too Late</div>
+        <p class="prob-body"><strong>45–75s wasted</strong> re-ramping to target intensity per rep.</p>
         <div class="prob-stat teal">45–75s</div>
-        <div class="prob-stat-sub">of wasted ramp-up time per rep in an 8-rep session</div>
+        <div class="prob-stat-sub">wasted per rep in an 8-rep session</div>
       </div>
       <div class="prob-window reveal reveal-d2">
         <div class="prob-window-icon">🎯</div>
-        <div class="prob-window-text">
-          <strong>RecovHR finds the window.</strong> Using your heart rate reserve, workout type, and rep number, it gives you a single number: the exact HR at which physiological readiness is restored — without losing training stimulus.
-        </div>
+        <div class="prob-window-text"><strong>RecovHR finds the window.</strong> One number per rep: the exact HR where you're recovered enough to go hard — without losing training stimulus.</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════ ALGORITHM ════════ -->
+<!-- ════ ALGORITHM ════ -->
 <div class="algo-section" id="algorithm">
+  <div class="sec-num" style="top:-20px; left:-10px;">02</div>
   <div class="section-inner">
     <div class="section-eyebrow teal">The Algorithm</div>
     <div class="section-heading dark">Heart Rate <em style="color:var(--teal-d); font-style:italic;">Reserve</em></div>
@@ -563,132 +471,113 @@
       <div class="input-card reveal">
         <div class="input-card-sym">HR<sub>max</sub></div>
         <div class="input-card-name">Maximum Heart Rate</div>
-        <div class="input-card-desc">Measured, or estimated via Tanaka: 208 − (0.7 × age). More accurate than 220 − age across adults.</div>
+        <div class="input-card-desc">Measured, or Tanaka formula: 208 − (0.7 × age).</div>
       </div>
       <div class="input-card reveal reveal-d1">
         <div class="input-card-sym">HR<sub>rest</sub></div>
         <div class="input-card-name">Resting Heart Rate</div>
-        <div class="input-card-desc">Morning seated measurement. Two runners at the same HRmax can differ by 30 bpm here — the most individualizing input.</div>
+        <div class="input-card-desc">Morning seated. Two runners at the same HRmax can differ 30 bpm here.</div>
       </div>
       <div class="input-card reveal reveal-d2">
         <div class="input-card-sym">LTHR</div>
         <div class="input-card-name">Lactate Threshold HR</div>
-        <div class="input-card-desc">30-min all-out time trial, average HR of final 20 min. Or estimate as 87% × HRmax. Determines your workout type.</div>
+        <div class="input-card-desc">30-min time trial, avg HR of final 20 min. Or estimate: 87% × HRmax.</div>
       </div>
       <div class="input-card reveal reveal-d3">
         <div class="input-card-sym">Age</div>
         <div class="input-card-name">Age</div>
-        <div class="input-card-desc">Only needed when HRmax is not directly measured. Used in the Tanaka formula to estimate maximum cardiac output.</div>
+        <div class="input-card-desc">Only needed when HRmax is not directly measured.</div>
       </div>
     </div>
 
-    <!-- HUD Dashboard -->
     <div class="dashboard reveal">
-      <div class="dash-label">Algorithm Dashboard &nbsp;·&nbsp; Sample athlete: HRmax 188 &nbsp;·&nbsp; HRrest 48 &nbsp;·&nbsp; HRR 140</div>
+      <div class="dash-label">Algorithm Dashboard &nbsp;·&nbsp; HRmax 188 &nbsp;·&nbsp; HRrest 48 &nbsp;·&nbsp; HRR 140</div>
       <div class="dash-flow">
-        <div class="dash-node">
-          <div class="dash-node-val">188</div>
-          <div class="dash-node-label">HR<sub>max</sub></div>
-        </div>
+        <div class="dash-node"><div class="dash-node-val">188</div><div class="dash-node-label">HR<sub>max</sub></div></div>
         <div class="dash-op"><div class="dash-op-sym">−</div></div>
-        <div class="dash-node">
-          <div class="dash-node-val">48</div>
-          <div class="dash-node-label">HR<sub>rest</sub></div>
-        </div>
+        <div class="dash-node"><div class="dash-node-val">48</div><div class="dash-node-label">HR<sub>rest</sub></div></div>
         <div class="dash-arrow">→</div>
-        <div class="dash-node">
-          <div class="dash-node-val" style="color:#fff;">140</div>
-          <div class="dash-node-label">HRR</div>
-          <div class="dash-node-sub">usable range</div>
-        </div>
+        <div class="dash-node"><div class="dash-node-val" style="color:#fff;">140</div><div class="dash-node-label">HRR</div><div class="dash-node-sub">usable range</div></div>
         <div class="dash-op"><div class="dash-op-sym">×</div></div>
-        <div class="dash-node">
-          <div class="dash-node-val" style="font-size:28px; color:rgba(255,255,255,0.5);">0.42</div>
-          <div class="dash-node-label">fraction<br>(VO2max)</div>
-        </div>
+        <div class="dash-node"><div class="dash-node-val" style="font-size:26px;color:rgba(255,255,255,0.5);">0.42</div><div class="dash-node-label">fraction<br>(VO2max)</div></div>
         <div class="dash-op"><div class="dash-op-sym">+</div></div>
-        <div class="dash-node">
-          <div class="dash-node-val" style="font-size:28px; color:rgba(255,255,255,0.4);">48</div>
-          <div class="dash-node-label">HR<sub>rest</sub></div>
-        </div>
+        <div class="dash-node"><div class="dash-node-val" style="font-size:26px;color:rgba(255,255,255,0.4);">48</div><div class="dash-node-label">HR<sub>rest</sub></div></div>
         <div class="dash-arrow">→</div>
-        <div class="dash-result">
-          <div class="dash-result-val">107</div>
-          <div class="dash-result-label">bpm · start next rep</div>
-        </div>
+        <div class="dash-result"><div class="dash-result-val">107</div><div class="dash-result-label">bpm · start next rep</div></div>
       </div>
       <hr class="dash-divider">
       <div class="dash-steps">
         <div class="dash-step">
           <div class="dash-step-num">Step 01</div>
           <div class="dash-step-formula"><em>HRR</em> = HR<sub>max</sub> − HR<sub>rest</sub></div>
-          <div class="dash-step-body">Heart rate reserve — your usable cardiac range. The foundation all thresholds are built on.</div>
+          <div class="dash-step-body">Your usable cardiac range. All thresholds scale from this.</div>
         </div>
         <div class="dash-step">
           <div class="dash-step-num">Step 02</div>
-          <div class="dash-step-formula"><em>Threshold</em> = (HRR × f) + HR<sub>rest</sub></div>
-          <div class="dash-step-body">f = HRR fraction for your workout type — 0.42 for VO2max, 0.50 for LT, 0.35 for speed, 0.38 for easy.</div>
+          <div class="dash-step-formula"><em>T</em> = (HRR × f) + HR<sub>rest</sub></div>
+          <div class="dash-step-body">f = 0.42 VO2max · 0.50 LT · 0.35 Speed · 0.38 Easy.</div>
         </div>
         <div class="dash-step">
-          <div class="dash-step-num">Step 03 — Drift Correction</div>
-          <div class="dash-step-formula"><em>Adjusted</em> = Threshold + (n−1) × 1.5</div>
-          <div class="dash-step-body">From rep 3 onward. n = current rep. Accounts for +1–2 bpm/rep cardiac drift due to thermoregulation.</div>
+          <div class="dash-step-num">Step 03 — Drift</div>
+          <div class="dash-step-formula"><em>T<sub>adj</sub></em> = T + (n−1) × 1.5</div>
+          <div class="dash-step-body">From rep 3 onward. Corrects for +1–2 bpm/rep cardiac drift.</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════ WORKOUT TYPES ════════ -->
+<!-- ════ WORKOUTS ════ -->
 <div class="workouts-section" id="workouts">
+  <div class="sec-num" style="top:-20px; right:-10px; color:rgba(255,255,255,0.04);">03</div>
   <div class="section-inner">
-    <div class="section-eyebrow teal-b">Workout Types</div>
+    <div class="section-eyebrow tealb">Workout Types</div>
     <div class="section-heading light">Four <em style="color:var(--teal);">Thresholds.</em></div>
-    <p style="font-size:13.5px; color:rgba(255,255,255,0.5); margin-top:10px; max-width:560px; line-height:1.75;">Different intensities demand different physiological recovery. RecovHR applies distinct HRR fractions so the threshold matches the actual stress of the work.</p>
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:8px;max-width:520px;line-height:1.7;">Each workout type produces distinct physiological stress. RecovHR applies different HRR fractions so recovery matches the actual demand.</p>
 
     <div class="workouts-grid reveal">
       <div class="wk-card c-teal">
         <div class="wk-type">VO2MAX</div>
         <div class="wk-effort">90–100% HRmax · 3–5 min reps</div>
-        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-label">Start when HR ≤</div>
         <div class="wk-threshold-val teal">107 <span class="wk-threshold-unit">bpm</span></div>
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.42</div>
         <div class="wk-floor">Min rest: <strong>90 seconds</strong></div>
-        <div class="wk-desc">Incomplete recovery is intentional — preserves elevated cardiac stress. Matches the 4×4 Norwegian protocol.</div>
-        <div class="wk-example">400m–1600m repeats · 5K race effort</div>
+        <div class="wk-desc">Incomplete recovery preserves elevated cardiac stress. Matches 4×4 Norwegian protocol.</div>
+        <div class="wk-example">400m–1600m repeats · 5K effort</div>
       </div>
       <div class="wk-card c-teal-d">
         <div class="wk-type">LT</div>
         <div class="wk-effort">88–97% LTHR · 8–20 min reps</div>
-        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-label">Start when HR ≤</div>
         <div class="wk-threshold-val teal-d">118 <span class="wk-threshold-unit">bpm</span></div>
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.50</div>
         <div class="wk-floor">Min rest: <strong>60 seconds</strong></div>
-        <div class="wk-desc">HR didn't peak — less recovery needed. Partial rest preserves the lactate signal driving mitochondrial adaptation.</div>
+        <div class="wk-desc">HR didn't peak — less recovery needed. Partial rest preserves the lactate signal.</div>
         <div class="wk-example">Tempo intervals · cruise intervals</div>
       </div>
       <div class="wk-card c-red">
         <div class="wk-type">Speed</div>
         <div class="wk-effort">Max effort · sub-30s reps</div>
-        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-label">Start when HR ≤</div>
         <div class="wk-threshold-val red">97 <span class="wk-threshold-unit">bpm</span></div>
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.35</div>
         <div class="wk-floor">Min rest: <strong>120 seconds</strong></div>
-        <div class="wk-desc">HR lags 30–60s for sprint work. Clock floor is primary — maps to 93% PCr resynthesis. HR is confirmation only.</div>
+        <div class="wk-desc">HR lags 30–60s. Clock floor is primary (93% PCr). HR is confirmation only.</div>
         <div class="wk-example">Strides · hill sprints · 100–200m</div>
       </div>
       <div class="wk-card c-dark">
         <div class="wk-type">Easy</div>
         <div class="wk-effort">65–78% HRmax · aerobic effort</div>
-        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-label">Start when HR ≤</div>
         <div class="wk-threshold-val" style="color:var(--dark);">101 <span class="wk-threshold-unit">bpm</span></div>
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.38</div>
         <div class="wk-floor">Min rest: <strong>30 seconds</strong></div>
-        <div class="wk-desc">HR rarely approaches max. Primary use is monitoring the work interval — preventing surges drifting into threshold territory.</div>
+        <div class="wk-desc">Primary use: monitoring the work interval, preventing surges into threshold territory.</div>
         <div class="wk-example">Aerobic fartlek · relaxed surges</div>
       </div>
     </div>
@@ -699,168 +588,178 @@
         <div class="session-header-title">8×400m VO2max · HRmax 188 · HRrest 48</div>
       </div>
       <table class="session-table">
-        <thead>
-          <tr>
-            <th>Rep</th><th>Base threshold</th><th>Drift added</th><th>Start when HR ≤</th><th>Min rest</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Rep</th><th>Base</th><th>Drift</th><th>Start when HR ≤</th><th>Min rest</th></tr></thead>
         <tbody>
-          <tr><td class="td-rep">1</td><td>107 bpm</td><td class="td-drift">—</td><td class="td-hr">107</td><td>90s</td></tr>
-          <tr><td class="td-rep">2</td><td>107 bpm</td><td class="td-drift">—</td><td class="td-hr">107</td><td>90s</td></tr>
-          <tr><td class="td-rep">3</td><td>107 bpm</td><td class="td-drift">+3.0 bpm</td><td class="td-hr">110</td><td>90s</td></tr>
-          <tr><td class="td-rep">4</td><td>107 bpm</td><td class="td-drift">+4.5 bpm</td><td class="td-hr">112</td><td>90s</td></tr>
-          <tr><td class="td-rep">5</td><td>107 bpm</td><td class="td-drift">+6.0 bpm</td><td class="td-hr">113</td><td>90s</td></tr>
-          <tr><td class="td-rep">6</td><td>107 bpm</td><td class="td-drift">+7.5 bpm</td><td class="td-hr">115</td><td>90s</td></tr>
-          <tr><td class="td-rep">7</td><td>107 bpm</td><td class="td-drift">+9.0 bpm</td><td class="td-hr">116</td><td>90s</td></tr>
-          <tr><td class="td-rep">8</td><td>107 bpm</td><td class="td-drift">+10.5 bpm</td><td class="td-hr">118</td><td>90s</td></tr>
+          <tr><td class="td-rep">1</td><td>107</td><td class="td-drift">—</td><td class="td-hr">107</td><td>90s</td></tr>
+          <tr><td class="td-rep">2</td><td>107</td><td class="td-drift">—</td><td class="td-hr">107</td><td>90s</td></tr>
+          <tr><td class="td-rep">3</td><td>107</td><td class="td-drift">+3.0</td><td class="td-hr">110</td><td>90s</td></tr>
+          <tr><td class="td-rep">4</td><td>107</td><td class="td-drift">+4.5</td><td class="td-hr">112</td><td>90s</td></tr>
+          <tr><td class="td-rep">5</td><td>107</td><td class="td-drift">+6.0</td><td class="td-hr">113</td><td>90s</td></tr>
+          <tr><td class="td-rep">6</td><td>107</td><td class="td-drift">+7.5</td><td class="td-hr">115</td><td>90s</td></tr>
+          <tr><td class="td-rep">7</td><td>107</td><td class="td-drift">+9.0</td><td class="td-hr">116</td><td>90s</td></tr>
+          <tr><td class="td-rep">8</td><td>107</td><td class="td-drift">+10.5</td><td class="td-hr">118</td><td>90s</td></tr>
         </tbody>
       </table>
-      <div class="session-note">Without drift correction, rep 8 would require ≈45–75 extra seconds — diluting late-session training stimulus.</div>
+      <div class="session-note">Drift correction saves ≈45–75s per late rep — preserving late-session training stimulus.</div>
     </div>
   </div>
 </div>
 
-<!-- ════════ SCIENCE ════════ -->
+<!-- ════ SCIENCE ════ -->
 <div class="science-section" id="science">
   <div class="section-inner">
     <div class="section-eyebrow red">The Science</div>
-    <div class="section-heading dark">Why These <em style="color:var(--dark); font-style:italic;">Numbers</em></div>
+    <div class="section-heading dark">Why These <em style="color:var(--dark);font-style:italic;">Numbers</em></div>
 
     <div class="science-rows">
+
       <div class="science-row reveal">
         <div class="sci-img-wrap">
           <div class="sci-img-slash"></div>
-          <div class="sci-img">
-            <img src="figures/fig1_recovery_curve.png" alt="HR recovery curve and RecovHR thresholds" loading="lazy">
-          </div>
+          <div class="sci-img"><img src="figures/fig1_recovery_curve.png" alt="HR recovery curve" loading="lazy"></div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">📈</div>
           <div class="sci-headline">The Recovery <span>Curve</span></div>
-          <div class="sci-body">
-            <p>After a hard effort, HR follows an exponential decay. The fast phase (~30s) is parasympathetic reactivation. The slow phase (30s–3 min) is sympathetic withdrawal.</p>
-            <p>Each threshold is the point where cardiac output can support another hard ramp — not just that HR is lower, but that the system is physiologically capable of the next effort. The <strong>shaded region is the sweet spot</strong>: recovered enough to go hard, not so rested that stimulus is lost.</p>
+          <div class="sci-stat">
+            <span class="sci-stat-num">90–140s</span>
+            <span class="sci-stat-label">Sweet Spot Window</span>
           </div>
+          <p class="sci-body-short">RecovHR targets the exact zone where HR has dropped enough to go hard again — without losing the training stimulus from incomplete rest.</p>
+          <details class="learn-more">
+            <summary>Learn more</summary>
+            <div class="learn-body">After a hard effort, HR decays exponentially. The fast phase (~30s) is parasympathetic reactivation. The slow phase (30s–3 min) is sympathetic withdrawal. The <strong>shaded region in the chart</strong> marks the window: past the point where cardiovascular stress has dropped, but before complete autonomic reset dilutes the training signal.</div>
+          </details>
         </div>
       </div>
 
       <div class="science-row flip reveal">
         <div class="sci-img-wrap">
           <div class="sci-img-slash"></div>
-          <div class="sci-img">
-            <img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs raw %HRmax" loading="lazy">
-          </div>
+          <div class="sci-img"><img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs %HRmax" loading="lazy"></div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">⚗️</div>
           <div class="sci-headline">Why Not <span>% HRmax?</span></div>
-          <div class="sci-body">
-            <p>At the same HRmax of 188, a trained runner with resting HR 38 and a recreational runner at 68 are in <strong>very different physiological states</strong> at "65% HRmax."</p>
-            <p>Karvonen anchors recovery to the individual's usable cardiac range — not a population average. The difference can reach <strong>21 bpm</strong> between these athletes at the same raw percentage. That's the difference between ready and not ready.</p>
+          <div class="sci-stat">
+            <span class="sci-stat-num">21 bpm</span>
+            <span class="sci-stat-label">Difference at same HRmax</span>
           </div>
+          <p class="sci-body-short">Two athletes, same HRmax — but resting HR differs by 30 bpm. Karvonen corrects for that. A fixed %HRmax ignores it entirely.</p>
+          <details class="learn-more">
+            <summary>Learn more</summary>
+            <div class="learn-body">At HRmax 188 with HRrests of 38 vs. 68, the "65% HRmax" recovery target is identical for both athletes (122 bpm). But the Karvonen formula gives <strong>101 bpm vs. 122 bpm</strong> — a 21-bpm spread that reflects their very different physiological readiness states.</div>
+          </details>
         </div>
       </div>
 
       <div class="science-row reveal">
         <div class="sci-img-wrap">
           <div class="sci-img-slash"></div>
-          <div class="sci-img">
-            <img src="figures/fig5_pcr_kinetics.png" alt="Phosphocreatine resynthesis kinetics" loading="lazy">
-          </div>
+          <div class="sci-img"><img src="figures/fig5_pcr_kinetics.png" alt="PCr resynthesis" loading="lazy"></div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">⚡</div>
           <div class="sci-headline">The Clock <span>Floors</span></div>
-          <div class="sci-body">
-            <p>Phosphocreatine is the immediate fuel for maximal efforts. Its resynthesis has a half-life of ~30 seconds (Harris et al., 1976). <strong>87% restored at 90 seconds.</strong></p>
-            <p>No matter how fast HR drops, RecovHR's clock floors prevent starting a rep before the fuel is physically ready. The VO2max floor (90s) maps to 87% PCr. The speed floor (120s) maps to 93%.</p>
+          <div class="sci-stat">
+            <span class="sci-stat-num">90s = 87%</span>
+            <span class="sci-stat-label">PCr Restored</span>
           </div>
+          <p class="sci-body-short">No matter how fast HR drops, the fuel must be physically ready. Clock floors enforce the PCr resynthesis timeline.</p>
+          <details class="learn-more">
+            <summary>Learn more</summary>
+            <div class="learn-body">Phosphocreatine (PCr) is the immediate fuel for maximal efforts. It has a half-life of ~30s (Harris et al., 1976). At 90s, <strong>87% is restored</strong>; at 120s, <strong>93%</strong>. The VO2max floor (90s) and speed floor (120s) are pinned to these resynthesis milestones — preventing any rep from starting before the fuel system is ready.</div>
+          </details>
         </div>
       </div>
 
       <div class="science-row flip reveal">
         <div class="sci-img-wrap">
           <div class="sci-img-slash"></div>
-          <div class="sci-img">
-            <img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift correction" loading="lazy">
-          </div>
+          <div class="sci-img"><img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift" loading="lazy"></div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">📡</div>
           <div class="sci-headline">Cardiac <span>Drift</span></div>
-          <div class="sci-body">
-            <p>In a multi-rep session, end-of-recovery HR rises <strong>1–2 bpm per rep</strong> due to thermoregulation and progressive dehydration. A fixed threshold demands longer rest as the session progresses.</p>
-            <p>RecovHR adds 1.5 bpm per rep from rep 3 onward — raising the threshold to match where HR actually sits, preserving the same physiological readiness state on rep 8 as rep 1.</p>
+          <div class="sci-stat">
+            <span class="sci-stat-num">+1.5 bpm</span>
+            <span class="sci-stat-label">Per Rep from Rep 3</span>
           </div>
+          <p class="sci-body-short">A fixed threshold gets harder to meet as the session progresses. RecovHR adjusts each rep to match actual cardiac drift.</p>
+          <details class="learn-more">
+            <summary>Learn more</summary>
+            <div class="learn-body">In a multi-rep session, end-of-recovery HR rises 1–2 bpm per rep due to thermoregulation and dehydration (Rampinini et al., 2015). Without correction, rep 8 with a fixed threshold demands <strong>45–75 extra seconds</strong> — systematically diluting late-session training stimulus. RecovHR adds 1.5 bpm/rep from rep 3 onward to preserve identical readiness across the full session.</div>
+          </details>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- ════════ METHOD ════════ -->
+<!-- ════ METHOD ════ -->
 <div class="method-section" id="method">
   <div class="section-inner">
-    <div class="section-eyebrow teal-b">Method</div>
-    <div class="section-heading light">Index <em style="color:var(--teal); font-style:italic;">Construction</em></div>
+    <div class="section-eyebrow tealb">Method</div>
+    <div class="section-heading light">Index <em style="color:var(--teal);font-style:italic;">Construction</em></div>
     <div class="method-grid">
       <div>
-        <p style="font-size:13.5px; color:rgba(255,255,255,0.5); line-height:1.8; margin-bottom:24px;">Every parameter in RecovHR — HRR fraction, drift constant, clock floor — has a named source and a physiological rationale. No proprietary data. No black box.</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.8;margin-bottom:20px;">Every parameter — HRR fraction, drift constant, clock floor — has a named source. No proprietary data. No black box.</p>
         <div class="source-cards">
           <div class="source-card reveal">
             <div class="source-card-num">1</div>
-            <div><div class="source-card-name">Karvonen HRR Formula</div><div class="source-card-desc">Foundation of all thresholds. Scales to individual usable cardiac range rather than population-average %HRmax.</div><div class="source-card-ref">Karvonen et al., 1957</div></div>
+            <div><div class="source-card-name">Karvonen HRR Formula</div><div class="source-card-desc">Foundation of all thresholds. Scales to individual usable cardiac range.</div><div class="source-card-ref">Karvonen et al., 1957</div></div>
           </div>
           <div class="source-card reveal reveal-d1">
             <div class="source-card-num">2</div>
-            <div><div class="source-card-name">VO2max HRR Fraction (0.42)</div><div class="source-card-desc">Derived from the 4×4 Norwegian protocol's 70% HRmax active recovery upper bound, converted to HRR-based expression.</div><div class="source-card-ref">Helgerud et al., 2007 · Buchheit & Laursen, 2013</div></div>
+            <div><div class="source-card-name">VO2max HRR Fraction (0.42)</div><div class="source-card-desc">From 4×4 Norwegian protocol's 70% HRmax active recovery bound, converted to HRR.</div><div class="source-card-ref">Helgerud et al., 2007 · Buchheit & Laursen, 2013</div></div>
           </div>
           <div class="source-card reveal reveal-d2">
             <div class="source-card-num">3</div>
-            <div><div class="source-card-name">PCr Resynthesis Kinetics</div><div class="source-card-desc">First-order kinetics, τ ≈ 43.7s. Basis for minimum clock floors — 87% at 90s, 93% at 120s.</div><div class="source-card-ref">Harris et al., 1976 · Glaister, 2005</div></div>
+            <div><div class="source-card-name">PCr Resynthesis Kinetics</div><div class="source-card-desc">τ ≈ 43.7s. Basis for clock floors — 87% at 90s, 93% at 120s.</div><div class="source-card-ref">Harris et al., 1976 · Glaister, 2005</div></div>
           </div>
           <div class="source-card reveal reveal-d3">
             <div class="source-card-num">4</div>
-            <div><div class="source-card-name">Cardiac Drift Constant (1.5 bpm/rep)</div><div class="source-card-desc">Empirical mean from middle-distance runner interval study. Applied from rep 3 onward.</div><div class="source-card-ref">Rampinini et al., 2015</div></div>
+            <div><div class="source-card-name">Drift Constant (1.5 bpm/rep)</div><div class="source-card-desc">Empirical mean from middle-distance runner interval study. Applied from rep 3.</div><div class="source-card-ref">Rampinini et al., 2015</div></div>
           </div>
           <div class="source-card reveal reveal-d4">
             <div class="source-card-num">5</div>
-            <div><div class="source-card-name">Tanaka HRmax Estimate</div><div class="source-card-desc">208 − 0.7 × age. Lower mean absolute error than 220 − age across adult populations.</div><div class="source-card-ref">Tanaka et al., 2001</div></div>
+            <div><div class="source-card-name">Tanaka HRmax Estimate</div><div class="source-card-desc">208 − 0.7 × age. Lower error than 220 − age across adults.</div><div class="source-card-ref">Tanaka et al., 2001</div></div>
           </div>
         </div>
       </div>
       <div>
-        <div style="margin-bottom:32px;">
-          <div style="font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:14px;">Limitations</div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px;">Limitations</div>
           <div class="method-drawer">
             <button class="drawer-toggle" id="limitToggle">Known Limitations <span class="arrow">▾</span></button>
             <div class="drawer-body" id="limitBody">
               <div class="drawer-inner">
                 <div class="limit-grid">
-                  <div class="limit-card"><div class="limit-num">1</div><div class="limit-title">HR lags for sprint work</div><div class="limit-body">HR peaks 30–60s after a sub-30s rep ends. Clock floor governs; HR is confirmation only.</div></div>
-                  <div class="limit-card"><div class="limit-num">2</div><div class="limit-title">Drift constant is a mean</div><div class="limit-body">1.5 bpm/rep from one study. Heat and dehydration can push this to 2–3 bpm/rep.</div></div>
-                  <div class="limit-card"><div class="limit-num">3</div><div class="limit-title">LTHR estimation range</div><div class="limit-body">87% × HRmax spans 80–92% in literature. Field test strongly preferred.</div></div>
-                  <div class="limit-card"><div class="limit-num">4</div><div class="limit-title">No RCT validation</div><div class="limit-body">Not yet tested in a controlled trial vs. clock-gated recovery on adaptation outcomes.</div></div>
+                  <div class="limit-card"><div class="limit-num">1</div><div class="limit-title">HR lags sprints</div><div class="limit-body">HR peaks 30–60s after a sub-30s rep. Clock floor governs; HR is confirmation.</div></div>
+                  <div class="limit-card"><div class="limit-num">2</div><div class="limit-title">Drift is a mean</div><div class="limit-body">1.5 bpm/rep from one study. Heat can push this to 2–3 bpm/rep.</div></div>
+                  <div class="limit-card"><div class="limit-num">3</div><div class="limit-title">LTHR variance</div><div class="limit-body">87% × HRmax spans 80–92% in literature. Field test preferred.</div></div>
+                  <div class="limit-card"><div class="limit-num">4</div><div class="limit-title">No RCT yet</div><div class="limit-body">Not tested in a controlled trial vs. clock-gated recovery.</div></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div style="font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:14px;">References</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px;">References</div>
         <div class="method-drawer">
           <button class="drawer-toggle" id="refToggle">Full Bibliography <span class="arrow">▾</span></button>
           <div class="drawer-body" id="refBody">
             <div class="drawer-inner">
               <ul class="ref-list">
-                <li>Buchheit & Laursen — HIIT programming puzzle, Parts I & II. <em>Sports Medicine</em> 2013.</li>
-                <li>Cole et al. — Heart-rate recovery as predictor of mortality. <em>NEJM</em> 1999.</li>
-                <li>Glaister — Multiple sprint work: physiology of fatigue. <em>Sports Medicine</em> 2005.</li>
+                <li>Buchheit & Laursen — HIIT programming puzzle. <em>Sports Medicine</em> 2013.</li>
+                <li>Cole et al. — Heart-rate recovery and mortality. <em>NEJM</em> 1999.</li>
+                <li>Glaister — Multiple sprint work physiology. <em>Sports Medicine</em> 2005.</li>
                 <li>Harris et al. — PCr resynthesis time course. <em>Pflügers Archiv</em> 1976.</li>
                 <li>Helgerud et al. — Aerobic intervals improve VO2max. <em>MSSE</em> 2007.</li>
                 <li>Karvonen et al. — Training effects on heart rate. <em>Ann Med Exp Biol Fenn</em> 1957.</li>
-                <li>Menzies et al. — Lactate clearance depends on active recovery intensity. <em>J Sports Sci</em> 2010.</li>
-                <li>Rampinini et al. — HR during interval recovery in middle-distance runners. <em>JSSM</em> 2015.</li>
-                <li>Tanaka et al. — Age-predicted maximal heart rate revisited. <em>JACC</em> 2001.</li>
+                <li>Menzies et al. — Lactate clearance and recovery intensity. <em>J Sports Sci</em> 2010.</li>
+                <li>Rampinini et al. — HR during interval recovery. <em>JSSM</em> 2015.</li>
+                <li>Tanaka et al. — Age-predicted maximal heart rate. <em>JACC</em> 2001.</li>
               </ul>
             </div>
           </div>
@@ -870,12 +769,12 @@
   </div>
 </div>
 
-<!-- ════════ FOOTER ════════ -->
+<!-- ════ FOOTER ════ -->
 <footer>
   <div class="footer-top">
     <div>
       <div class="footer-brand">Recov<em>HR</em></div>
-      <div class="footer-tagline">A heart rate reserve algorithm for individualized interval recovery. Know when to go again.</div>
+      <div class="footer-tagline">Heart rate reserve algorithm for individualized interval recovery.</div>
     </div>
     <div class="footer-col">
       <h4>Author</h4>
@@ -887,7 +786,7 @@
     </div>
     <div class="footer-col">
       <h4>Keywords</h4>
-      <p>Interval training<br>Heart rate recovery<br>Karvonen · HRR<br>VO2max · HIIT<br>Lactate threshold</p>
+      <p>Interval training<br>Heart rate recovery<br>Karvonen · HRR<br>VO2max · HIIT</p>
     </div>
   </div>
   <div class="footer-base">
@@ -898,180 +797,112 @@
 
 <!-- Lightbox -->
 <div class="lb-ov" id="lbOv">
-  <div class="lb-panel" id="lbPanel">
-    <button class="lb-x" id="lbX">✕</button>
-    <img id="lbImg" src="" alt="">
-  </div>
+  <div class="lb-panel"><button class="lb-x" id="lbX">✕</button><img id="lbImg" src="" alt=""></div>
 </div>
 
 <script>
-  /* ══ EKG Canvas ══ */
-  (function() {
-    const wrap   = document.getElementById('ekg-wrap');
-    const canvas = document.getElementById('ekg-canvas');
-    const ctx    = canvas.getContext('2d');
-    let W = 56, H = window.innerHeight;
-    let animT = 0;
-    let currentState = 'hero';
+/* ══ SPINE ══ */
+(function() {
+  const svg  = document.getElementById('spine-svg');
+  const path = document.getElementById('spine-path');
+  let pathLen = 0;
 
-    function resize() {
-      H = window.innerHeight;
-      canvas.width  = W;
-      canvas.height = H;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    // Pattern: returns x-offset from center for normalized y (0–1)
-    const patterns = {
-      hero(t, y) {
-        return Math.sin(t * 0.5 + y * 4) * 3;
-      },
-      problem(t, y) {
-        const a = Math.sin(t * 3.1 + y * 9) * 14;
-        const b = Math.sin(t * 5.3 + y * 17) * 7;
-        return a + b;
-      },
-      algorithm(t, y) {
-        return Math.sin(t * 1.4 + y * 7) * 11;
-      },
-      workouts(t, y) {
-        const p = ((y * 5 + t * 0.4) % 1 + 1) % 1;
-        if (p < 0.08) return 0;
-        if (p < 0.12) return (p - 0.08) / 0.04 * 20;
-        if (p < 0.16) return 20 - (p - 0.12) / 0.04 * 38;
-        if (p < 0.20) return -18 + (p - 0.16) / 0.04 * 20;
-        if (p < 0.26) return 2 - (p - 0.20) / 0.06 * 8;
-        return -6 + (p - 0.26) / 0.74 * 6;
-      },
-      science(t, y) {
-        return Math.sin(t * 0.7 + y * 3) * 6;
-      },
-    };
-
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-
-      const cx   = W / 2;
-      const pat  = patterns[currentState] || patterns.hero;
-      const teal = '#12BFBF';
-
-      // Glow pass
-      ctx.beginPath();
-      ctx.strokeStyle = teal;
-      ctx.lineWidth   = 7;
-      ctx.globalAlpha = 0.07;
-      ctx.shadowBlur  = 0;
-      for (let py = 0; py < H; py++) {
-        const x = cx + pat(animT, py / H);
-        py === 0 ? ctx.moveTo(x, py) : ctx.lineTo(x, py);
-      }
-      ctx.stroke();
-
-      // Main line pass
-      ctx.beginPath();
-      ctx.lineWidth   = 1.5;
-      ctx.globalAlpha = 0.8;
-      ctx.shadowColor = teal;
-      ctx.shadowBlur  = 5;
-      for (let py = 0; py < H; py++) {
-        const x = cx + pat(animT, py / H);
-        py === 0 ? ctx.moveTo(x, py) : ctx.lineTo(x, py);
-      }
-      ctx.stroke();
-
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur  = 0;
-      animT += 0.022;
-      requestAnimationFrame(draw);
-    }
-    draw();
-
-    // Switch state based on visible section
-    const stateMap = {
-      hero:      'hero',
-      problem:   'problem',
-      algorithm: 'algorithm',
-      workouts:  'workouts',
-      science:   'science',
-      method:    'science',
-    };
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting && stateMap[e.target.id]) {
-          currentState = stateMap[e.target.id];
-        }
-      });
-    }, { threshold: 0.25 });
-
-    ['hero','problem','algorithm','workouts','science','method'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-  })();
-
-  /* ══ Scroll reveal ══ */
-  const revEls = document.querySelectorAll('.reveal');
-  function updateReveal() {
-    const vh = window.innerHeight;
-    revEls.forEach(el => { if (el.getBoundingClientRect().top < vh - 30) el.classList.add('vis'); });
+  function top(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return el.getBoundingClientRect().top + window.scrollY;
   }
-  updateReveal();
-  window.addEventListener('scroll', updateReveal, { passive: true });
-  window.addEventListener('resize', updateReveal, { passive: true });
 
-  /* ══ Smooth scroll ══ */
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      const id = a.getAttribute('href');
-      if (id === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-      const el = document.querySelector(id);
-      if (!el) return;
-      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' });
-    });
+  function build() {
+    const W    = window.innerWidth;
+    const docH = document.documentElement.scrollHeight;
+    const L    = Math.round(W * 0.08);
+    const R    = Math.round(W * 0.92);
+    const SV   = 200; // vertical half-span of each slash
+
+    const tP = top('problem');
+    const tA = top('algorithm');
+    const tW = top('workouts');
+    const tS = top('science');
+
+    const pts = [
+      [L, 0],
+      [L, tP - SV], [R, tP + SV],
+      [R, tA - SV], [L, tA + SV],
+      [L, tW - SV], [R, tW + SV],
+      [R, tS - SV], [L, tS + SV],
+      [L, docH],
+    ];
+
+    path.setAttribute('d', pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' '));
+    svg.style.width  = W + 'px';
+    svg.style.height = docH + 'px';
+    pathLen = path.getTotalLength();
+    path.style.strokeDasharray = pathLen;
+    updateOffset();
+  }
+
+  function updateOffset() {
+    if (!pathLen) return;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+    const revealed = 0.12 + pct * 0.88;
+    path.style.strokeDashoffset = pathLen * (1 - Math.min(1, revealed));
+  }
+
+  window.addEventListener('load',   build);
+  window.addEventListener('resize', build);
+  window.addEventListener('scroll', updateOffset, { passive: true });
+})();
+
+/* ══ SCROLL REVEAL ══ */
+const revEls = document.querySelectorAll('.reveal');
+function updateReveal() {
+  const vh = window.innerHeight;
+  revEls.forEach(el => { if (el.getBoundingClientRect().top < vh - 30) el.classList.add('vis'); });
+}
+updateReveal();
+window.addEventListener('scroll', updateReveal, { passive: true });
+window.addEventListener('resize', updateReveal, { passive: true });
+
+/* ══ SMOOTH SCROLL ══ */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href');
+    if (id === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    const el = document.querySelector(id);
+    if (!el) return;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' });
   });
+});
 
-  /* ══ Sidebar ══ */
-  const hbg = document.getElementById('hbg');
-  const sb  = document.getElementById('sidebar');
-  const sob = document.getElementById('sob');
-  function openSB()  { sb.classList.add('open');  sob.classList.add('open');  hbg.classList.add('open');  document.body.style.overflow = 'hidden'; }
-  function closeSB() { sb.classList.remove('open'); sob.classList.remove('open'); hbg.classList.remove('open'); document.body.style.overflow = ''; }
-  hbg.addEventListener('click', () => sb.classList.contains('open') ? closeSB() : openSB());
-  sob.addEventListener('click', closeSB);
+/* ══ SIDEBAR ══ */
+const hbg = document.getElementById('hbg');
+const sb  = document.getElementById('sidebar');
+const sob = document.getElementById('sob');
+function openSB()  { sb.classList.add('open');  sob.classList.add('open');  hbg.classList.add('open');  document.body.style.overflow='hidden'; }
+function closeSB() { sb.classList.remove('open'); sob.classList.remove('open'); hbg.classList.remove('open'); document.body.style.overflow=''; }
+hbg.addEventListener('click', () => sb.classList.contains('open') ? closeSB() : openSB());
+sob.addEventListener('click', closeSB);
 
-  /* ══ Drawers ══ */
-  function setupDrawer(toggleId, bodyId) {
-    const toggle = document.getElementById(toggleId);
-    const body   = document.getElementById(bodyId);
-    toggle.addEventListener('click', () => {
-      const open = toggle.classList.toggle('open');
-      body.classList.toggle('open', open);
-    });
-  }
-  setupDrawer('limitToggle', 'limitBody');
-  setupDrawer('refToggle',   'refBody');
+/* ══ DRAWERS ══ */
+function setupDrawer(tid, bid) {
+  const t = document.getElementById(tid), b = document.getElementById(bid);
+  t.addEventListener('click', () => { const o = t.classList.toggle('open'); b.classList.toggle('open', o); });
+}
+setupDrawer('limitToggle', 'limitBody');
+setupDrawer('refToggle',   'refBody');
 
-  /* ══ Lightbox ══ */
-  const lbOv  = document.getElementById('lbOv');
-  const lbImg = document.getElementById('lbImg');
-  function openLb(src, alt) {
-    lbImg.src = src; lbImg.alt = alt;
-    lbOv.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    requestAnimationFrame(() => requestAnimationFrame(() => lbOv.classList.add('vis')));
-  }
-  function closeLb() {
-    lbOv.classList.remove('vis');
-    lbOv.addEventListener('transitionend', () => { lbOv.classList.remove('open'); document.body.style.overflow = ''; }, { once: true });
-  }
-  document.querySelectorAll('.sci-img').forEach(w => {
-    w.addEventListener('click', () => { const i = w.querySelector('img'); if (i) openLb(i.src, i.alt); });
-  });
-  document.getElementById('lbX').addEventListener('click', closeLb);
-  lbOv.addEventListener('click', e => { if (e.target === lbOv) closeLb(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+/* ══ LIGHTBOX ══ */
+const lbOv  = document.getElementById('lbOv');
+const lbImg = document.getElementById('lbImg');
+function openLb(src, alt) { lbImg.src=src; lbImg.alt=alt; lbOv.classList.add('open'); document.body.style.overflow='hidden'; requestAnimationFrame(()=>requestAnimationFrame(()=>lbOv.classList.add('vis'))); }
+function closeLb() { lbOv.classList.remove('vis'); lbOv.addEventListener('transitionend',()=>{ lbOv.classList.remove('open'); document.body.style.overflow=''; },{once:true}); }
+document.querySelectorAll('.sci-img').forEach(w => { w.addEventListener('click', ()=>{ const i=w.querySelector('img'); if(i) openLb(i.src,i.alt); }); });
+document.getElementById('lbX').addEventListener('click', closeLb);
+lbOv.addEventListener('click', e => { if(e.target===lbOv) closeLb(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLb(); });
 </script>
 </body>
 </html>
