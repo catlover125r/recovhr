@@ -20,697 +20,421 @@
       --teal:   #12BFBF;
       --teal-d: #007F7F;
       --white:  #ffffff;
-      --off:    #f9f6f6;
-      --ink:    #1a0808;
-      --ink2:   #5a3030;
-      --ink3:   #9a7070;
-      --rule:   #ecdcdc;
+      --bg:     #F4F4F4;
+      --ink:    #111111;
+      --ink2:   #444444;
+      --ink3:   #888888;
+      --rule:   #DEDEDE;
       --max:    1160px;
       --pad:    40px;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--white);
+      background: var(--bg);
       color: var(--ink);
       font-size: 14px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
-
     a { text-decoration: none; color: inherit; }
 
-    /* ── Nav ── */
+    /* ══════════════════════
+       EKG SIDE LINE
+    ══════════════════════ */
+    #ekg-wrap {
+      position: fixed; left: 0; top: 0;
+      width: 56px; height: 100vh;
+      pointer-events: none; z-index: 200;
+      overflow: hidden;
+    }
+    #ekg-canvas { position: absolute; left: 0; top: 0; }
+
+    /* ══════════════════════
+       NAV
+    ══════════════════════ */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 300;
       background: rgba(61,0,0,0.97);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(205,11,11,0.2);
     }
     .nav-inner {
       max-width: var(--max); margin: 0 auto; padding: 0 var(--pad);
       height: 54px; display: flex; justify-content: space-between; align-items: center;
     }
-    .nav-brand {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px; letter-spacing: 0.05em; color: var(--white);
-    }
+    .nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; color: #fff; }
     .nav-brand em { color: var(--teal); font-style: normal; }
     .nav-links { display: flex; gap: 28px; align-items: center; }
-    nav a {
-      font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; color: rgba(255,255,255,0.5);
-      transition: color .18s;
-    }
+    nav a { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); transition: color .18s; }
     nav a:hover { color: var(--teal); }
-    .nav-cta {
-      background: var(--teal); color: var(--black) !important;
-      border-radius: 3px; padding: 7px 18px;
-      transition: background .18s, opacity .18s !important;
-    }
-    .nav-cta:hover { background: #0fa8a8; opacity: 1; }
+    .nav-cta { background: var(--teal); color: var(--black) !important; border-radius: 3px; padding: 7px 18px; }
+    .nav-cta:hover { background: #0fa8a8; }
     .nav-spacer { height: 54px; }
 
-    /* ── Hamburger ── */
-    .hamburger {
-      display: none; flex-direction: column; gap: 5px;
-      background: none; border: none; cursor: pointer; padding: 4px;
-    }
-    .hamburger span {
-      display: block; width: 22px; height: 2px;
-      background: #fff; border-radius: 2px;
-      transition: transform .25s, opacity .25s;
-    }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; transition: transform .25s, opacity .25s; }
     .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    /* ── Sidebar ── */
     .sob { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; }
     .sob.open { display: block; }
-    .sidebar {
-      position: fixed; top: 0; right: 0; width: 270px; height: 100dvh;
-      background: var(--black); z-index: 500;
-      display: flex; flex-direction: column; padding: 64px 0 32px;
-      transform: translateX(100%); transition: transform .3s cubic-bezier(.22,.68,0,1);
-    }
+    .sidebar { position: fixed; top: 0; right: 0; width: 270px; height: 100dvh; background: var(--black); z-index: 500; display: flex; flex-direction: column; padding: 64px 0 32px; transform: translateX(100%); transition: transform .3s cubic-bezier(.22,.68,0,1); }
     .sidebar.open { transform: translateX(0); }
     .sidebar-brand { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: #fff; padding: 0 28px 20px; border-bottom: 1px solid rgba(205,11,11,0.35); margin-bottom: 4px; }
     .sidebar-brand em { color: var(--teal); font-style: normal; }
     .sidebar a { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.6); padding: 14px 28px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color .15s; }
     .sidebar a:hover { color: var(--teal); }
 
-    /* ════════════════════════════════════
-       HERO
-    ════════════════════════════════════ */
+    /* ══════════════════════
+       HERO — dark #3D0000
+    ══════════════════════ */
     .hero {
       position: relative; overflow: hidden;
       background: var(--black);
-      /* If you have a hero photo, set it here:
-         background-image: url('hero-runner.jpg');
-         background-size: cover; background-position: center 20%; */
-      min-height: 100vh;
-      display: flex; align-items: center;
+      min-height: 100vh; display: flex; align-items: center;
     }
-    /* Deep red overlay on photo */
     .hero::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(125deg, rgba(61,0,0,0.98) 40%, rgba(61,0,0,0.7) 100%);
+      background: linear-gradient(125deg, rgba(61,0,0,1) 40%, rgba(61,0,0,0.72) 100%);
       z-index: 1;
     }
-    /* Diagonal accent band */
-    .hero-band {
-      position: absolute;
-      top: 0; right: -10%; bottom: 0;
-      width: 55%;
-      background: var(--dark);
-      clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
-      opacity: 0.18;
-      z-index: 0;
+    .hero-glow {
+      position: absolute; top: -120px; right: -100px;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(18,191,191,0.07) 0%, transparent 70%);
+      z-index: 0; pointer-events: none;
     }
-    /* Bottom diagonal cut */
+    /* Diagonal bottom cut — reveals light bg */
     .hero::after {
       content: '';
-      position: absolute; bottom: -2px; left: 0; right: 0;
-      height: 90px;
-      background: var(--white);
+      position: absolute; bottom: -2px; left: 0; right: 0; height: 100px;
+      background: var(--bg);
       clip-path: polygon(0 100%, 100% 0, 100% 100%);
       z-index: 2;
     }
-
     .hero-inner {
       position: relative; z-index: 3;
       max-width: var(--max); margin: 0 auto;
       padding: 100px var(--pad) 160px;
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 60px; align-items: center;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
     }
+    .hero-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+    .hero-wordmark-wrap { display: inline-block; transform: skewX(-6deg); margin-bottom: 24px; }
+    .hero-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; font-size: clamp(56px, 8vw, 100px); line-height: 0.92; letter-spacing: -0.01em; color: #fff; text-transform: uppercase; }
+    .hero-headline em { color: var(--teal); display: block; font-style: italic; }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; max-width: 380px; margin-top: 20px; margin-bottom: 32px; }
+    .hero-sub strong { color: rgba(255,255,255,0.85); }
 
-    .hero-left {}
-
-    /* Slanted display text container */
-    .hero-wordmark-wrap {
-      display: inline-block;
-      transform: skewX(-6deg);
-      margin-bottom: 24px;
-    }
-    .hero-eyebrow {
-      font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--teal);
-      margin-bottom: 10px;
-    }
-    .hero-headline {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-style: italic; font-weight: 700;
-      font-size: clamp(56px, 8vw, 100px);
-      line-height: 0.92; letter-spacing: -0.01em;
-      color: var(--white);
-      text-transform: uppercase;
-    }
-    .hero-headline em {
-      font-style: italic;
-      color: var(--teal);
-      display: block;
-    }
-
-    .hero-sub {
-      font-size: 14px; color: rgba(255,255,255,0.55);
-      line-height: 1.75; max-width: 380px;
-      margin-top: 20px; margin-bottom: 32px;
-    }
-    .hero-sub strong { color: rgba(255,255,255,0.85); font-weight: 500; }
-
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--teal); color: var(--black);
-      font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 14px 32px; border-radius: 3px;
-      transition: background .2s, transform .2s;
-    }
+    .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: var(--black); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px 32px; border-radius: 3px; transition: background .2s, transform .2s; }
     .btn-primary:hover { background: #0fa8a8; transform: translateY(-1px); }
-
-    .btn-secondary {
-      display: inline-flex; align-items: center; gap: 8px;
-      border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.65);
-      font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 13px 28px; border-radius: 3px; margin-left: 12px;
-      transition: border-color .2s, color .2s;
-    }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.65); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 28px; border-radius: 3px; margin-left: 12px; transition: border-color .2s, color .2s; }
     .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
 
-    /* Hero right — stat block */
-    .hero-right {
-      border-left: 2px solid rgba(205,11,11,0.4);
-      padding-left: 40px;
-    }
-    .hero-stat-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
-    }
-    .hero-stat {
-      padding: 22px 20px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .hero-stat-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 52px; color: var(--teal); line-height: 1;
-    }
-    .hero-stat-label {
-      font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; margin-top: 4px;
-    }
+    .hero-right { border-left: 2px solid rgba(205,11,11,0.4); padding-left: 40px; }
+    .hero-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .hero-stat { padding: 22px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .hero-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--teal); line-height: 1; }
+    .hero-stat-label { font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; margin-top: 4px; }
 
-    /* ════════════════════════════════════
-       PROBLEM — Barn red diagonal blocks
-    ════════════════════════════════════ */
-    .problem-section {
-      position: relative; padding: 0; background: var(--white);
-    }
-    .problem-inner {
-      display: grid; grid-template-columns: 1fr 1fr;
-    }
-
-    .prob-block {
-      position: relative; padding: 80px 60px;
-      display: flex; flex-direction: column; gap: 20px;
-    }
-    .prob-block.bad  { background: var(--dark); }
-    .prob-block.good { background: var(--black); }
-
-    /* Diagonal border between the two blocks */
-    .prob-block.bad::after {
-      content: '';
-      position: absolute; top: 0; right: -32px; bottom: 0; width: 64px;
-      background: var(--dark);
-      clip-path: polygon(0 0, 50% 0, 100% 100%, 50% 100%);
-      z-index: 2;
-    }
-
-    .prob-icon {
-      width: 48px; height: 48px;
-      border: 1.5px solid rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-    }
-    .prob-tag {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 2px; width: fit-content;
-    }
-    .prob-tag.red  { background: rgba(205,11,11,0.2); color: var(--red); }
-    .prob-tag.teal { background: rgba(18,191,191,0.15); color: var(--teal); }
-
-    .prob-headline {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-style: italic; font-weight: 700; text-transform: uppercase;
-      font-size: 48px; line-height: 0.95; color: var(--white);
-    }
-    .prob-body {
-      font-size: 13.5px; color: rgba(255,255,255,0.6); line-height: 1.75;
-    }
-    .prob-body strong { color: rgba(255,255,255,0.85); }
-
-    .prob-stat {
-      margin-top: 8px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 36px; letter-spacing: 0.04em;
-    }
-    .prob-stat.red  { color: var(--red); }
-    .prob-stat.teal { color: var(--teal); }
-    .prob-stat-sub { font-size: 10.5px; color: rgba(255,255,255,0.4); margin-top: -4px; font-family: 'Inter', sans-serif; }
-
-    /* Section top diagonal cut in from hero */
-    .problem-section::before {
-      content: ''; display: block; height: 70px;
-      background: linear-gradient(to bottom right, var(--white) 50%, var(--dark) 50%);
-    }
-
-    /* ════════════════════════════════════
-       ALGORITHM — white section
-    ════════════════════════════════════ */
-    .algo-section {
-      background: var(--white);
-      padding: 100px var(--pad);
-      position: relative;
-    }
-    .algo-section::after {
-      content: '';
-      position: absolute; bottom: -60px; left: 0; right: 0; height: 120px;
-      background: var(--white);
-      clip-path: polygon(0 0, 100% 60%, 100% 100%, 0 100%);
-      z-index: 1;
-    }
-
+    /* ══════════════════════
+       SHARED LAYOUT
+    ══════════════════════ */
     .section-inner { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
-
-    .section-eyebrow {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-      margin-bottom: 10px;
-    }
+    .section-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 10px; }
     .section-eyebrow.teal { color: var(--teal-d); }
     .section-eyebrow.red  { color: var(--red); }
+    .section-eyebrow.teal-b { color: var(--teal); }
+    .section-heading { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: clamp(40px, 5vw, 68px); line-height: 0.95; letter-spacing: -0.01em; }
+    .section-heading.dark  { color: var(--ink); }
+    .section-heading.light { color: #fff; }
 
-    .section-heading {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-style: italic; font-weight: 700; text-transform: uppercase;
-      font-size: clamp(40px, 5vw, 68px); line-height: 0.95; letter-spacing: -0.01em;
+    /* ══════════════════════
+       PROBLEM — light bg, color as accents
+    ══════════════════════ */
+    .problem-section {
+      position: relative; background: var(--bg);
+      padding: 80px var(--pad) 100px; overflow: hidden;
     }
-    .section-heading.dark { color: var(--ink); }
-    .section-heading.light { color: var(--white); }
-    .section-heading em { font-style: italic; }
+    /* Barn red diagonal slashes behind cards */
+    .problem-slash {
+      position: absolute; top: 0; bottom: 0; width: 320px;
+      background: var(--dark); opacity: 0.07; pointer-events: none;
+      clip-path: polygon(30% 0, 100% 0, 70% 100%, 0% 100%);
+    }
+    .problem-slash.left  { left: -60px; }
+    .problem-slash.right { right: -60px; }
 
-    /* Dashboard — visual flow of the algorithm */
-    .dashboard {
-      background: var(--black);
-      border-radius: 12px;
-      padding: 40px;
-      margin-top: 48px;
-      position: relative;
-      overflow: hidden;
-    }
-    .dashboard::before {
-      content: '';
-      position: absolute; top: 0; right: 0;
-      width: 200px; height: 100%;
-      background: linear-gradient(to left, rgba(18,191,191,0.04), transparent);
-    }
+    .prob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
 
-    .dash-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--teal); margin-bottom: 32px;
+    .prob-card {
+      background: var(--white); border-radius: 12px; padding: 44px 40px;
+      position: relative; overflow: hidden;
+      border: 1px solid var(--rule);
+      transition: transform .3s cubic-bezier(.22,.68,0,1.1), box-shadow .3s;
     }
+    .prob-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+    /* Left accent bar */
+    .prob-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; border-radius: 12px 0 0 12px; }
+    .prob-card.bad::before  { background: var(--dark); }
+    .prob-card.good::before { background: var(--teal); }
+    /* Corner slash */
+    .prob-card-slash { position: absolute; top: 0; right: 0; width: 160px; height: 160px; opacity: 0.06; clip-path: polygon(100% 0, 100% 100%, 0 0); }
+    .prob-card.bad  .prob-card-slash { background: var(--dark); }
+    .prob-card.good .prob-card-slash { background: var(--teal); }
 
-    .dash-flow {
-      display: flex; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 24px;
-    }
-    .dash-node {
-      text-align: center; min-width: 110px;
-    }
-    .dash-node-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 38px; color: var(--teal); line-height: 1;
-    }
-    .dash-node-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      color: rgba(255,255,255,0.35); margin-top: 3px;
-    }
-    .dash-node-sub { font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .prob-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; width: fit-content; margin-bottom: 18px; }
+    .prob-tag.red  { background: rgba(122,0,0,0.1); color: var(--dark); }
+    .prob-tag.teal { background: rgba(18,191,191,0.1); color: var(--teal-d); }
 
-    .dash-arrow {
-      flex: 1; display: flex; align-items: center; justify-content: center;
-      min-width: 40px;
-      color: var(--teal-d);
-      font-size: 22px; opacity: 0.6;
-    }
-    .dash-op {
-      text-align: center; min-width: 60px;
-    }
-    .dash-op-sym {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px; color: rgba(255,255,255,0.25);
-    }
+    .prob-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 54px; line-height: 0.95; margin-bottom: 18px; }
+    .prob-headline.red  { color: var(--dark); }
+    .prob-headline.teal { color: var(--teal-d); }
 
-    .dash-result {
-      background: rgba(18,191,191,0.1);
-      border: 1px solid rgba(18,191,191,0.3);
-      border-radius: 8px;
-      padding: 20px 28px; text-align: center; min-width: 150px;
-    }
-    .dash-result-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px; color: var(--teal); line-height: 1;
-    }
-    .dash-result-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--teal); opacity: 0.7; margin-top: 3px;
-    }
+    .prob-body { font-size: 13.5px; color: var(--ink2); line-height: 1.8; }
+    .prob-body strong { color: var(--ink); font-weight: 600; }
 
-    .dash-divider {
-      border: none; border-top: 1px solid rgba(255,255,255,0.06);
-      margin: 28px 0;
-    }
+    .prob-stat { margin-top: 22px; font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.04em; line-height: 1; }
+    .prob-stat.red  { color: var(--dark); }
+    .prob-stat.teal { color: var(--teal-d); }
+    .prob-stat-sub { font-size: 10.5px; color: var(--ink3); margin-top: 3px; }
 
-    .dash-steps {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    /* Window callout between the two */
+    .prob-window {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(18,191,191,0.08), rgba(18,191,191,0.04));
+      border: 1px solid rgba(18,191,191,0.2);
+      border-radius: 10px; padding: 24px 32px;
+      display: flex; align-items: center; gap: 20px;
     }
-    .dash-step {
-      border-left: 2px solid rgba(18,191,191,0.25);
-      padding-left: 16px;
-    }
-    .dash-step-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 11px; letter-spacing: 0.08em; color: var(--teal); opacity: 0.6;
-      margin-bottom: 6px;
-    }
-    .dash-step-formula {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 18px; font-weight: 600; color: var(--white);
-      letter-spacing: 0.02em; margin-bottom: 4px;
-    }
-    .dash-step-formula em { color: var(--teal); font-style: normal; }
-    .dash-step-body { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.55; }
+    .prob-window-icon { font-size: 28px; flex-shrink: 0; }
+    .prob-window-text { font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+    .prob-window-text strong { color: var(--teal-d); font-weight: 700; }
 
-    /* Inputs grid */
-    .inputs-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 14px; margin-top: 40px;
-    }
-    .input-card {
-      border: 1px solid var(--rule); border-radius: 8px; padding: 20px;
-      background: var(--white);
-      transition: border-color .2s;
-    }
-    .input-card:hover { border-color: var(--teal-d); }
-    .input-card-sym {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 32px; color: var(--black); line-height: 1; margin-bottom: 8px;
-    }
+    /* ══════════════════════
+       ALGORITHM — light bg, HUD dashboard
+    ══════════════════════ */
+    .algo-section { background: var(--bg); padding: 100px var(--pad) 120px; position: relative; overflow: hidden; }
+
+    /* Input cards */
+    .inputs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
+    .input-card { border: 1px solid var(--rule); border-radius: 10px; padding: 22px; background: var(--white); transition: border-color .2s, box-shadow .2s; }
+    .input-card:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(18,191,191,0.1); }
+    .input-card-sym { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--black); line-height: 1; margin-bottom: 8px; }
     .input-card-sym sub { font-size: 16px; }
     .input-card-name { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
     .input-card-desc { font-size: 11px; color: var(--ink3); line-height: 1.5; }
 
-    /* ════════════════════════════════════
-       WORKOUT TYPES — dark section
-    ════════════════════════════════════ */
+    /* HUD Dashboard — floating dark card */
+    .dashboard {
+      background: rgba(61,0,0,0.97);
+      border-radius: 16px; padding: 40px;
+      margin-top: 40px;
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(18,191,191,0.18);
+      box-shadow: 0 24px 72px rgba(61,0,0,0.3), 0 0 0 1px rgba(18,191,191,0.06);
+    }
+    /* Top teal stripe */
+    .dashboard::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--teal), var(--teal-d), transparent); border-radius: 16px 16px 0 0; }
+    /* Corner glow */
+    .dashboard::before { content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(18,191,191,0.09) 0%, transparent 70%); }
+
+    .dash-label { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
+    .dash-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 10px var(--teal); animation: pulse-dot 2s ease infinite; flex-shrink: 0; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.65); } }
+
+    .dash-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 24px; }
+    .dash-node { text-align: center; min-width: 110px; }
+    .dash-node-val { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--teal); line-height: 1; }
+    .dash-node-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-top: 3px; }
+    .dash-node-sub { font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .dash-op { text-align: center; min-width: 60px; }
+    .dash-op-sym { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: rgba(255,255,255,0.2); }
+    .dash-arrow { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 40px; color: var(--teal-d); font-size: 22px; opacity: 0.6; }
+
+    .dash-result {
+      background: rgba(18,191,191,0.12); border: 1px solid rgba(18,191,191,0.35);
+      border-radius: 10px; padding: 20px 28px; text-align: center; min-width: 150px;
+      box-shadow: 0 0 30px rgba(18,191,191,0.08);
+    }
+    .dash-result-val { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--teal); line-height: 1; text-shadow: 0 0 24px rgba(18,191,191,0.3); }
+    .dash-result-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); opacity: 0.7; margin-top: 4px; }
+
+    .dash-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 28px 0; }
+
+    .dash-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .dash-step { border-left: 2px solid rgba(18,191,191,0.25); padding-left: 16px; }
+    .dash-step-num { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--teal); opacity: 0.6; margin-bottom: 6px; }
+    .dash-step-formula { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 600; color: #fff; letter-spacing: 0.02em; margin-bottom: 4px; }
+    .dash-step-formula em { color: var(--teal); font-style: normal; }
+    .dash-step-body { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.55; }
+
+    /* ══════════════════════
+       WORKOUT TYPES — dark
+    ══════════════════════ */
     .workouts-section {
       background: var(--black);
-      padding: 140px var(--pad) 100px;
-      position: relative;
+      padding: 120px var(--pad) 100px;
+      position: relative; overflow: hidden;
     }
+    /* Diagonal entry from light bg above */
     .workouts-section::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 120px;
+      content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 100px;
       background: var(--black);
-      clip-path: polygon(0 0, 100% 100%, 0 100%);
-      /* creates diagonal entry from white above */
+      clip-path: polygon(0 100%, 100% 0, 100% 100%);
     }
 
-    .workouts-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 2px; margin-top: 48px;
-    }
-    .wk-card {
-      background: rgba(255,255,255,0.03);
-      border-top: 3px solid transparent;
-      padding: 32px 24px;
-      transition: background .2s;
-    }
+    .workouts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 48px; }
+    .wk-card { background: rgba(255,255,255,0.03); border-top: 3px solid transparent; padding: 32px 24px; transition: background .2s; }
     .wk-card:hover { background: rgba(255,255,255,0.06); }
-    .wk-card.c-teal  { border-color: var(--teal); }
+    .wk-card.c-teal   { border-color: var(--teal); }
     .wk-card.c-teal-d { border-color: var(--teal-d); }
-    .wk-card.c-red   { border-color: var(--red); }
-    .wk-card.c-dark  { border-color: var(--dark); }
-
-    .wk-type {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-style: italic; font-weight: 700; text-transform: uppercase;
-      font-size: 38px; color: var(--white); line-height: 1; margin-bottom: 4px;
-    }
+    .wk-card.c-red    { border-color: var(--red); }
+    .wk-card.c-dark   { border-color: var(--dark); }
+    .wk-type { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 38px; color: #fff; line-height: 1; margin-bottom: 4px; }
     .wk-effort { font-size: 9.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 20px; }
     .wk-threshold-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 2px; }
-    .wk-threshold-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 56px; line-height: 1;
-    }
-    .wk-threshold-val.teal  { color: var(--teal); }
+    .wk-threshold-val { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; }
+    .wk-threshold-val.teal   { color: var(--teal); }
     .wk-threshold-val.teal-d { color: var(--teal-d); }
-    .wk-threshold-val.red   { color: var(--red); }
-    .wk-threshold-val.dark  { color: var(--dark); }
+    .wk-threshold-val.red    { color: var(--red); }
+    .wk-threshold-val.dark   { color: var(--dark); }
     .wk-threshold-unit { font-size: 13px; color: rgba(255,255,255,0.3); margin-left: 2px; }
-
     .wk-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
-    .wk-frac { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
-    .wk-floor { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .wk-frac    { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+    .wk-floor   { font-size: 11px; color: rgba(255,255,255,0.4); }
     .wk-floor strong { color: rgba(255,255,255,0.7); }
-    .wk-desc { font-size: 11.5px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-top: 10px; }
+    .wk-desc    { font-size: 11.5px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-top: 10px; }
     .wk-example { font-size: 10px; color: var(--teal); opacity: 0.7; margin-top: 8px; font-weight: 500; }
 
-    /* Session plan table */
-    .session-block {
-      margin-top: 60px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .session-header {
-      padding: 16px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .session-block { margin-top: 60px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+    .session-header { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
     .session-header-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); }
     .session-header-title { font-size: 12.5px; color: rgba(255,255,255,0.5); }
     .session-table { width: 100%; border-collapse: collapse; }
     .session-table th { padding: 10px 16px; font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .session-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12.5px; color: rgba(255,255,255,0.65); }
-    .td-rep { color: rgba(255,255,255,0.25) !important; font-size: 11px !important; }
-    .td-hr { font-family: 'Bebas Neue', sans-serif !important; font-size: 22px !important; color: var(--teal) !important; letter-spacing: 0.04em; }
+    .td-rep   { color: rgba(255,255,255,0.25) !important; font-size: 11px !important; }
+    .td-hr    { font-family: 'Bebas Neue', sans-serif !important; font-size: 22px !important; color: var(--teal) !important; letter-spacing: 0.04em; }
     .td-drift { color: rgba(18,191,191,0.5) !important; font-size: 11px !important; }
     .session-note { padding: 10px 24px 14px; font-size: 10.5px; color: rgba(255,255,255,0.25); }
 
-    /* ════════════════════════════════════
-       SCIENCE — alternating feature rows
-    ════════════════════════════════════ */
-    .science-section {
-      background: var(--white);
-      padding: 100px var(--pad) 80px;
-      position: relative;
-    }
-    /* diagonal top entry */
+    /* ══════════════════════
+       SCIENCE — light bg, dark chart cards
+    ══════════════════════ */
+    .science-section { background: var(--bg); padding: 100px var(--pad) 80px; position: relative; }
     .science-section::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px;
-      background: var(--white);
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 80px;
+      background: var(--bg); clip-path: polygon(100% 0, 100% 100%, 0 100%);
     }
-
-    .science-rows { margin-top: 60px; display: flex; flex-direction: column; gap: 60px; }
-    .science-row {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 40px; align-items: center;
-    }
-    .science-row.flip .sci-img  { order: 2; }
+    .science-rows { margin-top: 60px; display: flex; flex-direction: column; gap: 64px; }
+    .science-row { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    .science-row.flip .sci-img-wrap { order: 2; }
     .science-row.flip .sci-text { order: 1; }
 
-    .sci-img {
-      border-radius: 10px; overflow: hidden;
-      background: #0d0002;
-      cursor: pointer;
-      transition: transform .3s cubic-bezier(.22,.68,0,1.15), box-shadow .3s;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    /* Chart card — dark, with barn red slash behind */
+    .sci-img-wrap { position: relative; }
+    .sci-img-slash {
+      position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
+      background: var(--dark); opacity: 0.14; border-radius: 14px; z-index: 0;
+      clip-path: polygon(7% 0, 100% 0, 93% 100%, 0% 100%);
     }
-    .sci-img:hover { transform: scale(1.018); box-shadow: 0 12px 48px rgba(0,0,0,0.22); }
+    .sci-img {
+      border-radius: 10px; overflow: hidden; background: #0d0002;
+      cursor: pointer; position: relative; z-index: 1;
+      transition: transform .3s cubic-bezier(.22,.68,0,1.15), box-shadow .3s;
+      box-shadow: 0 8px 36px rgba(0,0,0,0.22);
+    }
+    .sci-img:hover { transform: scale(1.018); box-shadow: 0 16px 56px rgba(0,0,0,0.35); }
     .sci-img img { width: 100%; height: auto; display: block; }
 
-    .sci-icon {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: rgba(0,127,127,0.12); border: 1px solid rgba(0,127,127,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; margin-bottom: 16px;
-    }
-    .sci-headline {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-style: italic; font-weight: 700; text-transform: uppercase;
-      font-size: 38px; line-height: 0.95; color: var(--ink); margin-bottom: 14px;
-    }
+    .sci-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,127,127,0.1); border: 1px solid rgba(0,127,127,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+    .sci-headline { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700; text-transform: uppercase; font-size: 38px; line-height: 0.95; color: var(--ink); margin-bottom: 14px; }
     .sci-headline span { color: var(--teal-d); }
     .sci-body { font-size: 13.5px; color: var(--ink2); line-height: 1.8; }
     .sci-body p + p { margin-top: 12px; }
     .sci-body strong { color: var(--ink); font-weight: 600; }
 
-    /* ════════════════════════════════════
-       METHOD — dark, with collapsible drawer
-    ════════════════════════════════════ */
-    .method-section {
-      background: var(--black);
-      padding: 100px var(--pad) 80px;
-      position: relative;
-    }
-    .method-section::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px;
-      background: var(--black);
-      clip-path: polygon(0 0, 100% 100%, 0 100%);
-    }
+    /* ══════════════════════
+       METHOD — dark
+    ══════════════════════ */
+    .method-section { background: var(--black); padding: 100px var(--pad) 80px; position: relative; }
+    .method-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; background: var(--black); clip-path: polygon(0 0, 100% 100%, 0 100%); }
 
-    .method-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-      margin-top: 48px; align-items: start;
-    }
-
-    /* Source cards — 5 compact items */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 48px; align-items: start; }
     .source-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-    .source-card {
-      display: flex; gap: 14px; align-items: flex-start;
-      padding: 16px; border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 6px; background: rgba(255,255,255,0.02);
-      transition: border-color .2s;
-    }
+    .source-card { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; background: rgba(255,255,255,0.02); transition: border-color .2s; }
     .source-card:hover { border-color: rgba(18,191,191,0.25); }
-    .source-card-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px; color: var(--teal); line-height: 1; min-width: 28px;
-    }
-    .source-card-name { font-size: 12.5px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+    .source-card-num  { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--teal); line-height: 1; min-width: 28px; }
+    .source-card-name { font-size: 12.5px; font-weight: 600; color: #fff; margin-bottom: 2px; }
     .source-card-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
     .source-card-ref  { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
 
-    /* Accordion drawer */
     .method-drawer { margin-top: 16px; }
-    .drawer-toggle {
-      width: 100%; text-align: left;
-      background: none; border: 1px solid rgba(18,191,191,0.2);
-      border-radius: 6px; padding: 14px 20px;
-      color: var(--teal); font-size: 11px; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-      font-family: 'Inter', sans-serif;
-      transition: background .18s;
-    }
+    .drawer-toggle { width: 100%; text-align: left; background: none; border: 1px solid rgba(18,191,191,0.2); border-radius: 6px; padding: 14px 20px; color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; transition: background .18s; }
     .drawer-toggle:hover { background: rgba(18,191,191,0.06); }
     .drawer-toggle .arrow { transition: transform .25s; }
     .drawer-toggle.open .arrow { transform: rotate(180deg); }
-    .drawer-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height .35s cubic-bezier(.4,0,.2,1);
-    }
+    .drawer-body { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
     .drawer-body.open { max-height: 600px; }
     .drawer-inner { padding: 20px 0 8px; }
-
-    .limit-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    }
-    .limit-card {
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 6px; padding: 16px;
-    }
-    .limit-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 30px; color: var(--red); line-height: 1; margin-bottom: 5px;
-    }
-    .limit-title { font-size: 11.5px; font-weight: 600; color: var(--white); margin-bottom: 3px; }
+    .limit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .limit-card { border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; padding: 16px; }
+    .limit-num   { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--red); line-height: 1; margin-bottom: 5px; }
+    .limit-title { font-size: 11.5px; font-weight: 600; color: #fff; margin-bottom: 3px; }
     .limit-body  { font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.5; }
-
     .ref-list { list-style: none; margin-top: 16px; }
-    .ref-list li {
-      font-size: 11px; color: rgba(255,255,255,0.35); padding: 7px 0 7px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; line-height: 1.55;
-    }
+    .ref-list li { font-size: 11px; color: rgba(255,255,255,0.35); padding: 7px 0 7px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; line-height: 1.55; }
     .ref-list li::before { content: '—'; position: absolute; left: 0; color: var(--teal); opacity: 0.5; }
 
-    /* ════════════════════════════════════
+    /* ══════════════════════
        FOOTER
-    ════════════════════════════════════ */
-    footer {
-      background: #0d0002;
-      padding: 60px var(--pad) 40px;
-    }
-    .footer-top {
-      max-width: var(--max); margin: 0 auto;
-      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
-      padding-bottom: 32px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .footer-brand {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px; letter-spacing: 0.04em; color: var(--white); margin-bottom: 10px;
-    }
+    ══════════════════════ */
+    footer { background: #0d0002; padding: 60px var(--pad) 40px; }
+    .footer-top { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 0.04em; color: #fff; margin-bottom: 10px; }
     .footer-brand em { color: var(--teal); font-style: normal; }
     .footer-tagline { font-size: 11.5px; color: rgba(255,255,255,0.35); line-height: 1.7; max-width: 220px; }
     .footer-col h4 { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 12px; }
     .footer-col p, .footer-col address { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.9; font-style: normal; }
-    .footer-base {
-      max-width: var(--max); margin: 24px auto 0;
-      font-size: 10.5px; color: rgba(255,255,255,0.2);
-      display: flex; justify-content: space-between;
-    }
+    .footer-base { max-width: var(--max); margin: 24px auto 0; font-size: 10.5px; color: rgba(255,255,255,0.2); display: flex; justify-content: space-between; }
 
-    /* ── Lightbox ── */
-    .lb-ov {
-      display: none; position: fixed; inset: 0; z-index: 600;
-      background: rgba(10,0,0,0.85); backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      align-items: center; justify-content: center;
-      padding: 28px; opacity: 0; transition: opacity .22s;
-    }
+    /* ══════════════════════
+       LIGHTBOX
+    ══════════════════════ */
+    .lb-ov { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(10,0,0,0.9); backdrop-filter: blur(20px); align-items: center; justify-content: center; padding: 28px; opacity: 0; transition: opacity .22s; }
     .lb-ov.open { display: flex; }
     .lb-ov.vis  { opacity: 1; }
-    .lb-panel {
-      background: #0d0002; border-radius: 10px; overflow: hidden;
-      max-width: min(90vw, 960px); max-height: 88vh;
-      transform: scale(.95); transition: transform .25s cubic-bezier(.22,.68,0,1.1);
-      position: relative;
-    }
+    .lb-panel { background: #0d0002; border-radius: 10px; overflow: hidden; max-width: min(90vw, 960px); max-height: 88vh; transform: scale(.95); transition: transform .25s cubic-bezier(.22,.68,0,1.1); position: relative; }
     .lb-ov.vis .lb-panel { transform: scale(1); }
     .lb-panel img { width: 100%; height: auto; display: block; max-height: 88vh; object-fit: contain; }
-    .lb-x {
-      position: absolute; top: 10px; right: 12px;
-      background: rgba(0,0,0,0.6); border: none; color: #fff;
-      font-size: 17px; width: 30px; height: 30px;
-      border-radius: 50%; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
+    .lb-x { position: absolute; top: 10px; right: 12px; background: rgba(0,0,0,0.6); border: none; color: #fff; font-size: 17px; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-    /* ── Scroll reveal ── */
-    .reveal {
-      opacity: 0; transform: translateY(30px);
-      transition: opacity .65s cubic-bezier(.22,.68,0,1), transform .65s cubic-bezier(.22,.68,0,1);
-    }
+    /* ══════════════════════
+       SCROLL REVEAL
+    ══════════════════════ */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .65s cubic-bezier(.22,.68,0,1), transform .65s cubic-bezier(.22,.68,0,1); }
     .reveal.vis { opacity: 1; transform: translateY(0); }
     .reveal-d1 { transition-delay: .08s; }
     .reveal-d2 { transition-delay: .16s; }
     .reveal-d3 { transition-delay: .24s; }
     .reveal-d4 { transition-delay: .32s; }
 
-    /* ── Mobile ── */
+    /* ══════════════════════
+       MOBILE
+    ══════════════════════ */
     @media (max-width: 768px) {
       :root { --pad: 20px; }
+      #ekg-wrap { display: none; }
       .hero-inner { grid-template-columns: 1fr; gap: 40px; }
       .hero-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(205,11,11,0.3); padding-top: 28px; }
-      .hero-stat-grid { grid-template-columns: 1fr 1fr; }
-      .problem-inner { grid-template-columns: 1fr; }
-      .prob-block.bad::after { display: none; }
+      .prob-grid { grid-template-columns: 1fr; }
       .inputs-grid { grid-template-columns: 1fr 1fr; }
       .workouts-grid { grid-template-columns: 1fr 1fr; }
       .science-row, .science-row.flip { grid-template-columns: 1fr; }
-      .science-row .sci-img, .science-row.flip .sci-img { order: 1 !important; }
+      .science-row .sci-img-wrap, .science-row.flip .sci-img-wrap { order: 1 !important; }
       .science-row .sci-text, .science-row.flip .sci-text { order: 2 !important; }
       .method-grid { grid-template-columns: 1fr; gap: 40px; }
       .limit-grid { grid-template-columns: 1fr; }
@@ -722,6 +446,11 @@
   </style>
 </head>
 <body>
+
+<!-- EKG Canvas -->
+<div id="ekg-wrap">
+  <canvas id="ekg-canvas"></canvas>
+</div>
 
 <!-- Sidebar -->
 <div class="sob" id="sob"></div>
@@ -735,7 +464,6 @@
   <a href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Paper ↗</a>
 </div>
 
-<!-- Nav -->
 <div class="nav-spacer"></div>
 <nav>
   <div class="nav-inner">
@@ -755,8 +483,8 @@
 </nav>
 
 <!-- ════════ HERO ════════ -->
-<div class="hero">
-  <div class="hero-band"></div>
+<div class="hero" id="hero">
+  <div class="hero-glow"></div>
   <div class="hero-inner">
     <div class="hero-left">
       <div class="hero-eyebrow">recovhr.com &nbsp;·&nbsp; Luke Popler &nbsp;·&nbsp; 2026</div>
@@ -776,25 +504,12 @@
         <a class="btn-secondary" href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Read the Paper ↗</a>
       </div>
     </div>
-
     <div class="hero-right">
       <div class="hero-stat-grid">
-        <div class="hero-stat">
-          <div class="hero-stat-num">4</div>
-          <div class="hero-stat-label">biometric inputs</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">1</div>
-          <div class="hero-stat-label">number output per rep</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">4</div>
-          <div class="hero-stat-label">distinct workout thresholds</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">8+</div>
-          <div class="hero-stat-label">published studies as basis</div>
-        </div>
+        <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">biometric inputs</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">1</div><div class="hero-stat-label">number output per rep</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-label">distinct workout thresholds</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">8+</div><div class="hero-stat-label">published studies as basis</div></div>
       </div>
     </div>
   </div>
@@ -802,26 +517,38 @@
 
 <!-- ════════ PROBLEM ════════ -->
 <div class="problem-section" id="problem">
-  <div class="problem-inner">
-    <div class="prob-block bad reveal">
-      <div class="prob-tag red">Too Little Rest</div>
-      <div class="prob-icon">🔴</div>
-      <div class="prob-headline">Over-<br>Stressed</div>
-      <p class="prob-body">
-        HR still at 80% HRmax. Phosphocreatine only <strong>~50% restored</strong>. Blood lactate still rising. Each rep is harder than the last — not because you're working harder, but because you never recovered from the previous one.
-      </p>
-      <div class="prob-stat red">3–4 reps</div>
-      <div class="prob-stat-sub">before session quality collapses</div>
-    </div>
-    <div class="prob-block good reveal reveal-d1">
-      <div class="prob-tag teal">Too Much Rest</div>
-      <div class="prob-icon">🔵</div>
-      <div class="prob-headline">Under-<br>Trained</div>
-      <p class="prob-body">
-        HR near resting. Sympathetic system fully withdrawn. The first <strong>30–60 seconds</strong> of the next rep is wasted re-ramping toward target intensity. Training stimulus is systematically diluted.
-      </p>
-      <div class="prob-stat teal">45–75s</div>
-      <div class="prob-stat-sub">of wasted time per rep in an 8-rep session</div>
+  <div class="problem-slash left"></div>
+  <div class="problem-slash right"></div>
+  <div class="problem-inner section-inner">
+    <div class="section-eyebrow red">The Problem</div>
+    <div class="section-heading dark">Two Ways to <em style="color:var(--dark); font-style:italic;">Fail</em></div>
+    <div class="prob-grid">
+      <div class="prob-card bad reveal">
+        <div class="prob-card-slash"></div>
+        <div class="prob-tag red">Too Little Rest</div>
+        <div class="prob-headline red">Over-<br>Stressed</div>
+        <p class="prob-body">
+          HR still at 80% HRmax. Phosphocreatine only <strong>~50% restored</strong>. Blood lactate still rising. Each rep is harder than the last — not because you're working harder, but because you never recovered from the previous one.
+        </p>
+        <div class="prob-stat red">3–4 reps</div>
+        <div class="prob-stat-sub">before session quality collapses</div>
+      </div>
+      <div class="prob-card good reveal reveal-d1">
+        <div class="prob-card-slash"></div>
+        <div class="prob-tag teal">Too Much Rest</div>
+        <div class="prob-headline teal">Under-<br>Trained</div>
+        <p class="prob-body">
+          HR near resting. Sympathetic system fully withdrawn. The first <strong>30–60 seconds</strong> of the next rep is wasted re-ramping toward target intensity. Training stimulus is systematically diluted.
+        </p>
+        <div class="prob-stat teal">45–75s</div>
+        <div class="prob-stat-sub">of wasted ramp-up time per rep in an 8-rep session</div>
+      </div>
+      <div class="prob-window reveal reveal-d2">
+        <div class="prob-window-icon">🎯</div>
+        <div class="prob-window-text">
+          <strong>RecovHR finds the window.</strong> Using your heart rate reserve, workout type, and rep number, it gives you a single number: the exact HR at which physiological readiness is restored — without losing training stimulus.
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -830,9 +557,8 @@
 <div class="algo-section" id="algorithm">
   <div class="section-inner">
     <div class="section-eyebrow teal">The Algorithm</div>
-    <div class="section-heading dark">Heart Rate <em style="color:var(--teal-d);">Reserve</em></div>
+    <div class="section-heading dark">Heart Rate <em style="color:var(--teal-d); font-style:italic;">Reserve</em></div>
 
-    <!-- 4 inputs -->
     <div class="inputs-grid">
       <div class="input-card reveal">
         <div class="input-card-sym">HR<sub>max</sub></div>
@@ -842,7 +568,7 @@
       <div class="input-card reveal reveal-d1">
         <div class="input-card-sym">HR<sub>rest</sub></div>
         <div class="input-card-name">Resting Heart Rate</div>
-        <div class="input-card-desc">Morning seated measurement. The most individualizing input — two runners at the same HRmax can differ by 30 bpm here.</div>
+        <div class="input-card-desc">Morning seated measurement. Two runners at the same HRmax can differ by 30 bpm here — the most individualizing input.</div>
       </div>
       <div class="input-card reveal reveal-d2">
         <div class="input-card-sym">LTHR</div>
@@ -852,13 +578,13 @@
       <div class="input-card reveal reveal-d3">
         <div class="input-card-sym">Age</div>
         <div class="input-card-name">Age</div>
-        <div class="input-card-desc">Only needed when HRmax is not directly measured. Used in the Tanaka formula.</div>
+        <div class="input-card-desc">Only needed when HRmax is not directly measured. Used in the Tanaka formula to estimate maximum cardiac output.</div>
       </div>
     </div>
 
-    <!-- Dashboard -->
-    <div class="dashboard reveal" style="margin-top:40px;">
-      <div class="dash-label">Algorithm Dashboard · Sample athlete: HRmax 188 · HRrest 48 · HRR 140</div>
+    <!-- HUD Dashboard -->
+    <div class="dashboard reveal">
+      <div class="dash-label">Algorithm Dashboard &nbsp;·&nbsp; Sample athlete: HRmax 188 &nbsp;·&nbsp; HRrest 48 &nbsp;·&nbsp; HRR 140</div>
       <div class="dash-flow">
         <div class="dash-node">
           <div class="dash-node-val">188</div>
@@ -891,9 +617,7 @@
           <div class="dash-result-label">bpm · start next rep</div>
         </div>
       </div>
-
       <hr class="dash-divider">
-
       <div class="dash-steps">
         <div class="dash-step">
           <div class="dash-step-num">Step 01</div>
@@ -903,12 +627,12 @@
         <div class="dash-step">
           <div class="dash-step-num">Step 02</div>
           <div class="dash-step-formula"><em>Threshold</em> = (HRR × f) + HR<sub>rest</sub></div>
-          <div class="dash-step-body">f is the HRR fraction for your workout type — 0.42 for VO2max, 0.50 for LT, 0.35 for speed, 0.38 for easy.</div>
+          <div class="dash-step-body">f = HRR fraction for your workout type — 0.42 for VO2max, 0.50 for LT, 0.35 for speed, 0.38 for easy.</div>
         </div>
         <div class="dash-step">
           <div class="dash-step-num">Step 03 — Drift Correction</div>
           <div class="dash-step-formula"><em>Adjusted</em> = Threshold + (n−1) × 1.5</div>
-          <div class="dash-step-body">From rep 3 onward. n = current rep. Prevents late-rep thresholds from becoming artificially demanding due to cardiac drift (+1–2 bpm/rep).</div>
+          <div class="dash-step-body">From rep 3 onward. n = current rep. Accounts for +1–2 bpm/rep cardiac drift due to thermoregulation.</div>
         </div>
       </div>
     </div>
@@ -918,9 +642,9 @@
 <!-- ════════ WORKOUT TYPES ════════ -->
 <div class="workouts-section" id="workouts">
   <div class="section-inner">
-    <div class="section-eyebrow" style="color:var(--teal);">Workout Types</div>
-    <div class="section-heading light">Four <em>Thresholds.</em></div>
-    <p style="font-size:13.5px; color:rgba(255,255,255,0.5); margin-top:10px; max-width:560px; line-height:1.75;">Different intensities produce different physiological demands. RecovHR applies distinct HRR fractions so the threshold matches the actual stress of the work.</p>
+    <div class="section-eyebrow teal-b">Workout Types</div>
+    <div class="section-heading light">Four <em style="color:var(--teal);">Thresholds.</em></div>
+    <p style="font-size:13.5px; color:rgba(255,255,255,0.5); margin-top:10px; max-width:560px; line-height:1.75;">Different intensities demand different physiological recovery. RecovHR applies distinct HRR fractions so the threshold matches the actual stress of the work.</p>
 
     <div class="workouts-grid reveal">
       <div class="wk-card c-teal">
@@ -931,10 +655,9 @@
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.42</div>
         <div class="wk-floor">Min rest: <strong>90 seconds</strong></div>
-        <div class="wk-desc">Incomplete recovery is intentional — preserves elevated cardiac stress across the session. Matches the 4×4 Norwegian protocol.</div>
+        <div class="wk-desc">Incomplete recovery is intentional — preserves elevated cardiac stress. Matches the 4×4 Norwegian protocol.</div>
         <div class="wk-example">400m–1600m repeats · 5K race effort</div>
       </div>
-
       <div class="wk-card c-teal-d">
         <div class="wk-type">LT</div>
         <div class="wk-effort">88–97% LTHR · 8–20 min reps</div>
@@ -943,10 +666,9 @@
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.50</div>
         <div class="wk-floor">Min rest: <strong>60 seconds</strong></div>
-        <div class="wk-desc">Effort didn't drive HR to max — less recovery needed. Partial recovery preserves the lactate signal that drives mitochondrial adaptation.</div>
+        <div class="wk-desc">HR didn't peak — less recovery needed. Partial rest preserves the lactate signal driving mitochondrial adaptation.</div>
         <div class="wk-example">Tempo intervals · cruise intervals</div>
       </div>
-
       <div class="wk-card c-red">
         <div class="wk-type">Speed</div>
         <div class="wk-effort">Max effort · sub-30s reps</div>
@@ -955,10 +677,9 @@
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.35</div>
         <div class="wk-floor">Min rest: <strong>120 seconds</strong></div>
-        <div class="wk-desc">HR lags 30–60s for sprint work. Clock floor is primary here — maps to 93% PCr resynthesis. HR is a confirmation signal only.</div>
-        <div class="wk-example">Strides · hill sprints · 100–200m reps</div>
+        <div class="wk-desc">HR lags 30–60s for sprint work. Clock floor is primary — maps to 93% PCr resynthesis. HR is confirmation only.</div>
+        <div class="wk-example">Strides · hill sprints · 100–200m</div>
       </div>
-
       <div class="wk-card c-dark">
         <div class="wk-type">Easy</div>
         <div class="wk-effort">65–78% HRmax · aerobic effort</div>
@@ -967,13 +688,12 @@
         <hr class="wk-divider">
         <div class="wk-frac">HRR fraction: 0.38</div>
         <div class="wk-floor">Min rest: <strong>30 seconds</strong></div>
-        <div class="wk-desc">HR rarely approaches max. Primary use is monitoring the work interval itself — preventing surges from drifting into threshold territory.</div>
+        <div class="wk-desc">HR rarely approaches max. Primary use is monitoring the work interval — preventing surges drifting into threshold territory.</div>
         <div class="wk-example">Aerobic fartlek · relaxed surges</div>
       </div>
     </div>
 
-    <!-- Session plan table -->
-    <div class="session-block reveal" style="margin-top:56px;">
+    <div class="session-block reveal">
       <div class="session-header">
         <div class="session-header-label">Session Plan</div>
         <div class="session-header-title">8×400m VO2max · HRmax 188 · HRrest 48</div>
@@ -981,11 +701,7 @@
       <table class="session-table">
         <thead>
           <tr>
-            <th>Rep</th>
-            <th>Base threshold</th>
-            <th>Drift added</th>
-            <th>Start when HR ≤</th>
-            <th>Min rest</th>
+            <th>Rep</th><th>Base threshold</th><th>Drift added</th><th>Start when HR ≤</th><th>Min rest</th>
           </tr>
         </thead>
         <tbody>
@@ -1008,13 +724,15 @@
 <div class="science-section" id="science">
   <div class="section-inner">
     <div class="section-eyebrow red">The Science</div>
-    <div class="section-heading dark">Why These <em style="color:var(--red);">Numbers</em></div>
+    <div class="section-heading dark">Why These <em style="color:var(--dark); font-style:italic;">Numbers</em></div>
 
     <div class="science-rows">
-
       <div class="science-row reveal">
-        <div class="sci-img">
-          <img src="figures/fig1_recovery_curve.png" alt="HR recovery curve and RecovHR thresholds" loading="lazy">
+        <div class="sci-img-wrap">
+          <div class="sci-img-slash"></div>
+          <div class="sci-img">
+            <img src="figures/fig1_recovery_curve.png" alt="HR recovery curve and RecovHR thresholds" loading="lazy">
+          </div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">📈</div>
@@ -1027,8 +745,11 @@
       </div>
 
       <div class="science-row flip reveal">
-        <div class="sci-img">
-          <img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs raw %HRmax" loading="lazy">
+        <div class="sci-img-wrap">
+          <div class="sci-img-slash"></div>
+          <div class="sci-img">
+            <img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs raw %HRmax" loading="lazy">
+          </div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">⚗️</div>
@@ -1041,8 +762,11 @@
       </div>
 
       <div class="science-row reveal">
-        <div class="sci-img">
-          <img src="figures/fig5_pcr_kinetics.png" alt="Phosphocreatine resynthesis kinetics" loading="lazy">
+        <div class="sci-img-wrap">
+          <div class="sci-img-slash"></div>
+          <div class="sci-img">
+            <img src="figures/fig5_pcr_kinetics.png" alt="Phosphocreatine resynthesis kinetics" loading="lazy">
+          </div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">⚡</div>
@@ -1055,19 +779,21 @@
       </div>
 
       <div class="science-row flip reveal">
-        <div class="sci-img">
-          <img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift correction" loading="lazy">
+        <div class="sci-img-wrap">
+          <div class="sci-img-slash"></div>
+          <div class="sci-img">
+            <img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift correction" loading="lazy">
+          </div>
         </div>
         <div class="sci-text">
           <div class="sci-icon">📡</div>
           <div class="sci-headline">Cardiac <span>Drift</span></div>
           <div class="sci-body">
-            <p>In a multi-rep session, end-of-recovery HR rises <strong>1–2 bpm per rep</strong> due to thermoregulation and progressive dehydration. A fixed threshold demands longer and longer rest as the session progresses.</p>
+            <p>In a multi-rep session, end-of-recovery HR rises <strong>1–2 bpm per rep</strong> due to thermoregulation and progressive dehydration. A fixed threshold demands longer rest as the session progresses.</p>
             <p>RecovHR adds 1.5 bpm per rep from rep 3 onward — raising the threshold to match where HR actually sits, preserving the same physiological readiness state on rep 8 as rep 1.</p>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -1075,99 +801,54 @@
 <!-- ════════ METHOD ════════ -->
 <div class="method-section" id="method">
   <div class="section-inner">
-    <div class="section-eyebrow" style="color:var(--teal);">Method</div>
-    <div class="section-heading light">Index <em style="color:var(--teal);">Construction</em></div>
-
+    <div class="section-eyebrow teal-b">Method</div>
+    <div class="section-heading light">Index <em style="color:var(--teal); font-style:italic;">Construction</em></div>
     <div class="method-grid">
       <div>
         <p style="font-size:13.5px; color:rgba(255,255,255,0.5); line-height:1.8; margin-bottom:24px;">Every parameter in RecovHR — HRR fraction, drift constant, clock floor — has a named source and a physiological rationale. No proprietary data. No black box.</p>
         <div class="source-cards">
           <div class="source-card reveal">
             <div class="source-card-num">1</div>
-            <div>
-              <div class="source-card-name">Karvonen HRR Formula</div>
-              <div class="source-card-desc">Foundation of all thresholds. Scales to individual usable cardiac range rather than population-average %HRmax.</div>
-              <div class="source-card-ref">Karvonen et al., 1957</div>
-            </div>
+            <div><div class="source-card-name">Karvonen HRR Formula</div><div class="source-card-desc">Foundation of all thresholds. Scales to individual usable cardiac range rather than population-average %HRmax.</div><div class="source-card-ref">Karvonen et al., 1957</div></div>
           </div>
           <div class="source-card reveal reveal-d1">
             <div class="source-card-num">2</div>
-            <div>
-              <div class="source-card-name">VO2max HRR Fraction (0.42)</div>
-              <div class="source-card-desc">Derived from the 4×4 Norwegian protocol's 70% HRmax active recovery upper bound, converted to HRR-based expression.</div>
-              <div class="source-card-ref">Helgerud et al., 2007 · Buchheit & Laursen, 2013</div>
-            </div>
+            <div><div class="source-card-name">VO2max HRR Fraction (0.42)</div><div class="source-card-desc">Derived from the 4×4 Norwegian protocol's 70% HRmax active recovery upper bound, converted to HRR-based expression.</div><div class="source-card-ref">Helgerud et al., 2007 · Buchheit & Laursen, 2013</div></div>
           </div>
           <div class="source-card reveal reveal-d2">
             <div class="source-card-num">3</div>
-            <div>
-              <div class="source-card-name">PCr Resynthesis Kinetics</div>
-              <div class="source-card-desc">First-order kinetics, τ ≈ 43.7s. Basis for minimum clock floors — 87% at 90s, 93% at 120s.</div>
-              <div class="source-card-ref">Harris et al., 1976 · Glaister, 2005</div>
-            </div>
+            <div><div class="source-card-name">PCr Resynthesis Kinetics</div><div class="source-card-desc">First-order kinetics, τ ≈ 43.7s. Basis for minimum clock floors — 87% at 90s, 93% at 120s.</div><div class="source-card-ref">Harris et al., 1976 · Glaister, 2005</div></div>
           </div>
           <div class="source-card reveal reveal-d3">
             <div class="source-card-num">4</div>
-            <div>
-              <div class="source-card-name">Cardiac Drift Constant (1.5 bpm/rep)</div>
-              <div class="source-card-desc">Empirical mean from middle-distance runner interval study. Applied from rep 3 onward.</div>
-              <div class="source-card-ref">Rampinini et al., 2015</div>
-            </div>
+            <div><div class="source-card-name">Cardiac Drift Constant (1.5 bpm/rep)</div><div class="source-card-desc">Empirical mean from middle-distance runner interval study. Applied from rep 3 onward.</div><div class="source-card-ref">Rampinini et al., 2015</div></div>
           </div>
           <div class="source-card reveal reveal-d4">
             <div class="source-card-num">5</div>
-            <div>
-              <div class="source-card-name">Tanaka HRmax Estimate</div>
-              <div class="source-card-desc">208 − 0.7 × age. Lower mean absolute error than 220 − age across adult populations.</div>
-              <div class="source-card-ref">Tanaka et al., 2001</div>
-            </div>
+            <div><div class="source-card-name">Tanaka HRmax Estimate</div><div class="source-card-desc">208 − 0.7 × age. Lower mean absolute error than 220 − age across adult populations.</div><div class="source-card-ref">Tanaka et al., 2001</div></div>
           </div>
         </div>
       </div>
-
       <div>
-        <!-- Limitations drawer -->
         <div style="margin-bottom:32px;">
           <div style="font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:14px;">Limitations</div>
           <div class="method-drawer">
-            <button class="drawer-toggle" id="limitToggle">
-              Known Limitations <span class="arrow">▾</span>
-            </button>
+            <button class="drawer-toggle" id="limitToggle">Known Limitations <span class="arrow">▾</span></button>
             <div class="drawer-body" id="limitBody">
               <div class="drawer-inner">
                 <div class="limit-grid">
-                  <div class="limit-card">
-                    <div class="limit-num">1</div>
-                    <div class="limit-title">HR lags for sprint work</div>
-                    <div class="limit-body">HR peaks 30–60s after a sub-30s rep ends. Clock floor governs; HR is confirmation only.</div>
-                  </div>
-                  <div class="limit-card">
-                    <div class="limit-num">2</div>
-                    <div class="limit-title">Drift constant is a mean</div>
-                    <div class="limit-body">1.5 bpm/rep from one study. Heat and dehydration can push this to 2–3 bpm/rep.</div>
-                  </div>
-                  <div class="limit-card">
-                    <div class="limit-num">3</div>
-                    <div class="limit-title">LTHR estimation range</div>
-                    <div class="limit-body">87% × HRmax spans 80–92% in literature. Field test strongly preferred.</div>
-                  </div>
-                  <div class="limit-card">
-                    <div class="limit-num">4</div>
-                    <div class="limit-title">No RCT validation</div>
-                    <div class="limit-body">Not yet tested in a controlled trial vs. clock-gated recovery on adaptation outcomes.</div>
-                  </div>
+                  <div class="limit-card"><div class="limit-num">1</div><div class="limit-title">HR lags for sprint work</div><div class="limit-body">HR peaks 30–60s after a sub-30s rep ends. Clock floor governs; HR is confirmation only.</div></div>
+                  <div class="limit-card"><div class="limit-num">2</div><div class="limit-title">Drift constant is a mean</div><div class="limit-body">1.5 bpm/rep from one study. Heat and dehydration can push this to 2–3 bpm/rep.</div></div>
+                  <div class="limit-card"><div class="limit-num">3</div><div class="limit-title">LTHR estimation range</div><div class="limit-body">87% × HRmax spans 80–92% in literature. Field test strongly preferred.</div></div>
+                  <div class="limit-card"><div class="limit-num">4</div><div class="limit-title">No RCT validation</div><div class="limit-body">Not yet tested in a controlled trial vs. clock-gated recovery on adaptation outcomes.</div></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Full reference drawer -->
         <div style="font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:14px;">References</div>
         <div class="method-drawer">
-          <button class="drawer-toggle" id="refToggle">
-            Full Bibliography <span class="arrow">▾</span>
-          </button>
+          <button class="drawer-toggle" id="refToggle">Full Bibliography <span class="arrow">▾</span></button>
           <div class="drawer-body" id="refBody">
             <div class="drawer-inner">
               <ul class="ref-list">
@@ -1198,29 +879,15 @@
     </div>
     <div class="footer-col">
       <h4>Author</h4>
-      <address>
-        Luke Popler<br>
-        Sequoia High School<br>
-        Redwood City, CA<br>
-        catlover125r@gmail.com
-      </address>
+      <address>Luke Popler<br>Sequoia High School<br>Redwood City, CA<br>catlover125r@gmail.com</address>
     </div>
     <div class="footer-col">
       <h4>Paper</h4>
-      <p>
-        April 2026<br>
-        <a href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank" style="color:var(--teal);">Download PDF ↗</a>
-      </p>
+      <p>April 2026<br><a href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank" style="color:var(--teal);">Download PDF ↗</a></p>
     </div>
     <div class="footer-col">
       <h4>Keywords</h4>
-      <p>
-        Interval training<br>
-        Heart rate recovery<br>
-        Karvonen · HRR<br>
-        VO2max · HIIT<br>
-        Lactate threshold
-      </p>
+      <p>Interval training<br>Heart rate recovery<br>Karvonen · HRR<br>VO2max · HIIT<br>Lactate threshold</p>
     </div>
   </div>
   <div class="footer-base">
@@ -1238,19 +905,122 @@
 </div>
 
 <script>
-  // Scroll reveal
+  /* ══ EKG Canvas ══ */
+  (function() {
+    const wrap   = document.getElementById('ekg-wrap');
+    const canvas = document.getElementById('ekg-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W = 56, H = window.innerHeight;
+    let animT = 0;
+    let currentState = 'hero';
+
+    function resize() {
+      H = window.innerHeight;
+      canvas.width  = W;
+      canvas.height = H;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Pattern: returns x-offset from center for normalized y (0–1)
+    const patterns = {
+      hero(t, y) {
+        return Math.sin(t * 0.5 + y * 4) * 3;
+      },
+      problem(t, y) {
+        const a = Math.sin(t * 3.1 + y * 9) * 14;
+        const b = Math.sin(t * 5.3 + y * 17) * 7;
+        return a + b;
+      },
+      algorithm(t, y) {
+        return Math.sin(t * 1.4 + y * 7) * 11;
+      },
+      workouts(t, y) {
+        const p = ((y * 5 + t * 0.4) % 1 + 1) % 1;
+        if (p < 0.08) return 0;
+        if (p < 0.12) return (p - 0.08) / 0.04 * 20;
+        if (p < 0.16) return 20 - (p - 0.12) / 0.04 * 38;
+        if (p < 0.20) return -18 + (p - 0.16) / 0.04 * 20;
+        if (p < 0.26) return 2 - (p - 0.20) / 0.06 * 8;
+        return -6 + (p - 0.26) / 0.74 * 6;
+      },
+      science(t, y) {
+        return Math.sin(t * 0.7 + y * 3) * 6;
+      },
+    };
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      const cx   = W / 2;
+      const pat  = patterns[currentState] || patterns.hero;
+      const teal = '#12BFBF';
+
+      // Glow pass
+      ctx.beginPath();
+      ctx.strokeStyle = teal;
+      ctx.lineWidth   = 7;
+      ctx.globalAlpha = 0.07;
+      ctx.shadowBlur  = 0;
+      for (let py = 0; py < H; py++) {
+        const x = cx + pat(animT, py / H);
+        py === 0 ? ctx.moveTo(x, py) : ctx.lineTo(x, py);
+      }
+      ctx.stroke();
+
+      // Main line pass
+      ctx.beginPath();
+      ctx.lineWidth   = 1.5;
+      ctx.globalAlpha = 0.8;
+      ctx.shadowColor = teal;
+      ctx.shadowBlur  = 5;
+      for (let py = 0; py < H; py++) {
+        const x = cx + pat(animT, py / H);
+        py === 0 ? ctx.moveTo(x, py) : ctx.lineTo(x, py);
+      }
+      ctx.stroke();
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur  = 0;
+      animT += 0.022;
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Switch state based on visible section
+    const stateMap = {
+      hero:      'hero',
+      problem:   'problem',
+      algorithm: 'algorithm',
+      workouts:  'workouts',
+      science:   'science',
+      method:    'science',
+    };
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && stateMap[e.target.id]) {
+          currentState = stateMap[e.target.id];
+        }
+      });
+    }, { threshold: 0.25 });
+
+    ['hero','problem','algorithm','workouts','science','method'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  })();
+
+  /* ══ Scroll reveal ══ */
   const revEls = document.querySelectorAll('.reveal');
   function updateReveal() {
     const vh = window.innerHeight;
-    revEls.forEach(el => {
-      if (el.getBoundingClientRect().top < vh - 30) el.classList.add('vis');
-    });
+    revEls.forEach(el => { if (el.getBoundingClientRect().top < vh - 30) el.classList.add('vis'); });
   }
   updateReveal();
   window.addEventListener('scroll', updateReveal, { passive: true });
   window.addEventListener('resize', updateReveal, { passive: true });
 
-  // Smooth scroll
+  /* ══ Smooth scroll ══ */
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       e.preventDefault();
@@ -1262,16 +1032,16 @@
     });
   });
 
-  // Sidebar
+  /* ══ Sidebar ══ */
   const hbg = document.getElementById('hbg');
   const sb  = document.getElementById('sidebar');
   const sob = document.getElementById('sob');
-  function openSB()  { sb.classList.add('open'); sob.classList.add('open'); hbg.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function openSB()  { sb.classList.add('open');  sob.classList.add('open');  hbg.classList.add('open');  document.body.style.overflow = 'hidden'; }
   function closeSB() { sb.classList.remove('open'); sob.classList.remove('open'); hbg.classList.remove('open'); document.body.style.overflow = ''; }
   hbg.addEventListener('click', () => sb.classList.contains('open') ? closeSB() : openSB());
   sob.addEventListener('click', closeSB);
 
-  // Drawers
+  /* ══ Drawers ══ */
   function setupDrawer(toggleId, bodyId) {
     const toggle = document.getElementById(toggleId);
     const body   = document.getElementById(bodyId);
@@ -1283,8 +1053,8 @@
   setupDrawer('limitToggle', 'limitBody');
   setupDrawer('refToggle',   'refBody');
 
-  // Lightbox
-  const lbOv = document.getElementById('lbOv');
+  /* ══ Lightbox ══ */
+  const lbOv  = document.getElementById('lbOv');
   const lbImg = document.getElementById('lbImg');
   function openLb(src, alt) {
     lbImg.src = src; lbImg.alt = alt;
