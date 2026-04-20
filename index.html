@@ -3,36 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RecovHR</title>
-  <meta name="description" content="A heart rate reserve–based algorithm for individualized interval recovery prescription. Know when to go again.">
+  <title>RecovHR — Know When to Go Again</title>
+  <meta name="description" content="A heart rate reserve algorithm for individualized interval recovery. Know exactly when to start your next rep.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     html, body { overflow-x: hidden; }
 
     :root {
-      --black:   #3D0000;
-      --dark:    #7A0000;
-      --red:     #CD0B0B;
-      --teal:    #12BFBF;
-      --teal-d:  #007F7F;
-      --white:   #ffffff;
-      --off:     #f7f4f4;
-      --ink:     #1a0a0a;
-      --ink2:    #4a2a2a;
-      --ink3:    #9a7a7a;
-      --rule:    #e8dede;
-      --max:     1140px;
-      --pad:     32px;
-      --diag:    60px;
+      --black:  #3D0000;
+      --dark:   #7A0000;
+      --red:    #CD0B0B;
+      --teal:   #12BFBF;
+      --teal-d: #007F7F;
+      --white:  #ffffff;
+      --off:    #f9f6f6;
+      --ink:    #1a0808;
+      --ink2:   #5a3030;
+      --ink3:   #9a7070;
+      --rule:   #ecdcdc;
+      --max:    1160px;
+      --pad:    40px;
     }
 
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--white);
       color: var(--ink);
       font-size: 14px;
@@ -42,1191 +40,1176 @@
 
     a { text-decoration: none; color: inherit; }
 
-    /* ─── Nav ─── */
+    /* ── Nav ── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 200;
-      background: rgba(61,0,0,0.96);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(205,11,11,0.25);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      background: rgba(61,0,0,0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(205,11,11,0.2);
     }
     .nav-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 var(--pad);
-      height: 52px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      max-width: var(--max); margin: 0 auto; padding: 0 var(--pad);
+      height: 54px; display: flex; justify-content: space-between; align-items: center;
     }
     .nav-brand {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px;
-      letter-spacing: 0.04em;
-      color: var(--white);
+      font-size: 28px; letter-spacing: 0.05em; color: var(--white);
     }
-    .nav-brand span { color: var(--teal); }
-    .nav-links {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-    }
+    .nav-brand em { color: var(--teal); font-style: normal; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
     nav a {
-      font-size: 11.5px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.5);
       transition: color .18s;
     }
     nav a:hover { color: var(--teal); }
-    .nav-paper {
-      border: 1px solid var(--teal);
-      border-radius: 4px;
-      padding: 5px 14px;
-      color: var(--teal) !important;
-      transition: background .18s, color .18s !important;
+    .nav-cta {
+      background: var(--teal); color: var(--black) !important;
+      border-radius: 3px; padding: 7px 18px;
+      transition: background .18s, opacity .18s !important;
     }
-    .nav-paper:hover { background: var(--teal); color: var(--black) !important; }
-    .nav-spacer { height: 52px; }
+    .nav-cta:hover { background: #0fa8a8; opacity: 1; }
+    .nav-spacer { height: 54px; }
 
-    /* ─── Hamburger ─── */
+    /* ── Hamburger ── */
     .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
     }
     .hamburger span {
       display: block; width: 22px; height: 2px;
-      background: var(--white); border-radius: 2px;
+      background: #fff; border-radius: 2px;
       transition: transform .25s, opacity .25s;
     }
     .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    /* ─── Sidebar ─── */
-    .sidebar-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5); z-index: 300;
-    }
-    .sidebar-overlay.open { display: block; }
+    /* ── Sidebar ── */
+    .sob { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; }
+    .sob.open { display: block; }
     .sidebar {
-      position: fixed; top: 0; right: 0;
-      width: 260px; height: 100dvh;
-      background: var(--black); z-index: 400;
-      display: flex; flex-direction: column;
-      padding: 60px 0 32px;
-      transform: translateX(100%);
-      transition: transform .3s cubic-bezier(.22,.68,0,1);
+      position: fixed; top: 0; right: 0; width: 270px; height: 100dvh;
+      background: var(--black); z-index: 500;
+      display: flex; flex-direction: column; padding: 64px 0 32px;
+      transform: translateX(100%); transition: transform .3s cubic-bezier(.22,.68,0,1);
     }
     .sidebar.open { transform: translateX(0); }
-    .sidebar a {
-      font-size: 15px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      padding: 15px 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      transition: color .15s;
-    }
+    .sidebar-brand { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: #fff; padding: 0 28px 20px; border-bottom: 1px solid rgba(205,11,11,0.35); margin-bottom: 4px; }
+    .sidebar-brand em { color: var(--teal); font-style: normal; }
+    .sidebar a { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.6); padding: 14px 28px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color .15s; }
     .sidebar a:hover { color: var(--teal); }
-    .sidebar .sidebar-brand {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px; letter-spacing: 0.04em;
-      color: var(--white); padding: 0 28px 20px;
-      border-bottom: 1px solid rgba(205,11,11,0.4);
-      margin-bottom: 4px;
-    }
-    .sidebar .sidebar-brand span { color: var(--teal); }
 
-    /* ─── Hero ─── */
+    /* ════════════════════════════════════
+       HERO
+    ════════════════════════════════════ */
     .hero {
+      position: relative; overflow: hidden;
       background: var(--black);
-      position: relative;
-      padding: 80px var(--pad) 120px;
-      overflow: hidden;
+      /* If you have a hero photo, set it here:
+         background-image: url('hero-runner.jpg');
+         background-size: cover; background-position: center 20%; */
+      min-height: 100vh;
+      display: flex; align-items: center;
     }
+    /* Deep red overlay on photo */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(125deg, rgba(61,0,0,0.98) 40%, rgba(61,0,0,0.7) 100%);
+      z-index: 1;
+    }
+    /* Diagonal accent band */
+    .hero-band {
+      position: absolute;
+      top: 0; right: -10%; bottom: 0;
+      width: 55%;
+      background: var(--dark);
+      clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+      opacity: 0.18;
+      z-index: 0;
+    }
+    /* Bottom diagonal cut */
     .hero::after {
       content: '';
-      position: absolute;
-      bottom: -1px; left: 0; right: 0;
-      height: var(--diag);
+      position: absolute; bottom: -2px; left: 0; right: 0;
+      height: 90px;
       background: var(--white);
       clip-path: polygon(0 100%, 100% 0, 100% 100%);
+      z-index: 2;
     }
+
     .hero-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
+      position: relative; z-index: 3;
+      max-width: var(--max); margin: 0 auto;
+      padding: 100px var(--pad) 160px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
     }
-    .hero-left { position: relative; z-index: 1; }
+
+    .hero-left {}
+
+    /* Slanted display text container */
+    .hero-wordmark-wrap {
+      display: inline-block;
+      transform: skewX(-6deg);
+      margin-bottom: 24px;
+    }
     .hero-eyebrow {
-      font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
       text-transform: uppercase; color: var(--teal);
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
-    .hero-wordmark {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 110px;
-      line-height: 0.9;
-      letter-spacing: 0.02em;
+    .hero-headline {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-style: italic; font-weight: 700;
+      font-size: clamp(56px, 8vw, 100px);
+      line-height: 0.92; letter-spacing: -0.01em;
       color: var(--white);
+      text-transform: uppercase;
     }
-    .hero-wordmark span { color: var(--teal); }
-    .hero-tagline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.5);
-      margin-top: 12px;
+    .hero-headline em {
+      font-style: italic;
+      color: var(--teal);
+      display: block;
     }
+
+    .hero-sub {
+      font-size: 14px; color: rgba(255,255,255,0.55);
+      line-height: 1.75; max-width: 380px;
+      margin-top: 20px; margin-bottom: 32px;
+    }
+    .hero-sub strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--teal); color: var(--black);
+      font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 14px 32px; border-radius: 3px;
+      transition: background .2s, transform .2s;
+    }
+    .btn-primary:hover { background: #0fa8a8; transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.65);
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 13px 28px; border-radius: 3px; margin-left: 12px;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* Hero right — stat block */
     .hero-right {
-      position: relative; z-index: 1;
       border-left: 2px solid rgba(205,11,11,0.4);
-      padding-left: 36px;
+      padding-left: 40px;
     }
-    .hero-text {
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255,255,255,0.75);
-    }
-    .hero-text strong { color: var(--teal); font-weight: 600; }
-    .hero-text p + p { margin-top: 16px; }
-    .hero-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 28px;
+    .hero-stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
     }
     .hero-stat {
-      border: 1px solid rgba(18,191,191,0.25);
-      border-radius: 6px;
-      padding: 14px 16px;
-      background: rgba(18,191,191,0.06);
+      padding: 22px 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
     }
     .hero-stat-num {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 36px;
-      color: var(--teal);
-      line-height: 1;
+      font-size: 52px; color: var(--teal); line-height: 1;
     }
     .hero-stat-label {
-      font-size: 10.5px;
-      color: rgba(255,255,255,0.5);
-      margin-top: 3px;
-      line-height: 1.4;
+      font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; margin-top: 4px;
     }
 
-    /* ─── Section wrappers ─── */
-    .section-light {
+    /* ════════════════════════════════════
+       PROBLEM — Barn red diagonal blocks
+    ════════════════════════════════════ */
+    .problem-section {
+      position: relative; padding: 0; background: var(--white);
+    }
+    .problem-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+
+    .prob-block {
+      position: relative; padding: 80px 60px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .prob-block.bad  { background: var(--dark); }
+    .prob-block.good { background: var(--black); }
+
+    /* Diagonal border between the two blocks */
+    .prob-block.bad::after {
+      content: '';
+      position: absolute; top: 0; right: -32px; bottom: 0; width: 64px;
+      background: var(--dark);
+      clip-path: polygon(0 0, 50% 0, 100% 100%, 50% 100%);
+      z-index: 2;
+    }
+
+    .prob-icon {
+      width: 48px; height: 48px;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .prob-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 2px; width: fit-content;
+    }
+    .prob-tag.red  { background: rgba(205,11,11,0.2); color: var(--red); }
+    .prob-tag.teal { background: rgba(18,191,191,0.15); color: var(--teal); }
+
+    .prob-headline {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-style: italic; font-weight: 700; text-transform: uppercase;
+      font-size: 48px; line-height: 0.95; color: var(--white);
+    }
+    .prob-body {
+      font-size: 13.5px; color: rgba(255,255,255,0.6); line-height: 1.75;
+    }
+    .prob-body strong { color: rgba(255,255,255,0.85); }
+
+    .prob-stat {
+      margin-top: 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; letter-spacing: 0.04em;
+    }
+    .prob-stat.red  { color: var(--red); }
+    .prob-stat.teal { color: var(--teal); }
+    .prob-stat-sub { font-size: 10.5px; color: rgba(255,255,255,0.4); margin-top: -4px; font-family: 'Inter', sans-serif; }
+
+    /* Section top diagonal cut in from hero */
+    .problem-section::before {
+      content: ''; display: block; height: 70px;
+      background: linear-gradient(to bottom right, var(--white) 50%, var(--dark) 50%);
+    }
+
+    /* ════════════════════════════════════
+       ALGORITHM — white section
+    ════════════════════════════════════ */
+    .algo-section {
       background: var(--white);
+      padding: 100px var(--pad);
       position: relative;
-      padding: calc(var(--diag) + 40px) var(--pad) 80px;
     }
-    .section-dark {
-      background: var(--black);
-      position: relative;
-      padding: calc(var(--diag) + 40px) var(--pad) 80px;
-    }
-    .section-mid {
-      background: var(--off);
-      position: relative;
-      padding: calc(var(--diag) + 40px) var(--pad) 80px;
-    }
-
-    .section-light::before,
-    .section-mid::before {
+    .algo-section::after {
       content: '';
-      position: absolute;
-      top: -1px; left: 0; right: 0;
-      height: var(--diag);
-      background: inherit;
-      clip-path: polygon(0 0, 100% 100%, 0 100%);
-    }
-    .section-dark::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 0; right: 0;
-      height: var(--diag);
-      background: var(--black);
-      clip-path: polygon(0 0, 100% 100%, 0 100%);
-    }
-    .section-light::after,
-    .section-mid::after {
-      content: '';
-      position: absolute;
-      bottom: -1px; left: 0; right: 0;
-      height: var(--diag);
-      background: inherit;
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
-    }
-    .section-dark::after {
-      content: '';
-      position: absolute;
-      bottom: -1px; left: 0; right: 0;
-      height: var(--diag);
-      background: var(--black);
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
-    }
-
-    .section-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      position: relative;
+      position: absolute; bottom: -60px; left: 0; right: 0; height: 120px;
+      background: var(--white);
+      clip-path: polygon(0 0, 100% 60%, 100% 100%, 0 100%);
       z-index: 1;
     }
 
-    /* ─── Section headings ─── */
-    .section-label {
-      font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
-      text-transform: uppercase; color: var(--teal);
+    .section-inner { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+
+    .section-eyebrow {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
       margin-bottom: 10px;
     }
-    .section-label.light { color: var(--red); }
+    .section-eyebrow.teal { color: var(--teal-d); }
+    .section-eyebrow.red  { color: var(--red); }
 
-    .display-heading {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 72px;
-      line-height: 0.95;
-      letter-spacing: 0.02em;
-      color: var(--white);
-      margin-bottom: 20px;
+    .section-heading {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-style: italic; font-weight: 700; text-transform: uppercase;
+      font-size: clamp(40px, 5vw, 68px); line-height: 0.95; letter-spacing: -0.01em;
     }
-    .display-heading.dark { color: var(--ink); }
-    .display-heading span { color: var(--teal); }
-    .display-heading span.red { color: var(--red); }
+    .section-heading.dark { color: var(--ink); }
+    .section-heading.light { color: var(--white); }
+    .section-heading em { font-style: italic; }
 
-    /* ─── Problem section ─── */
-    .problem-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      margin-top: 40px;
-    }
-    .problem-card {
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      padding: 28px;
-      background: rgba(255,255,255,0.04);
-    }
-    .problem-card.bad  { border-color: rgba(205,11,11,0.4);  background: rgba(205,11,11,0.06); }
-    .problem-card.good { border-color: rgba(18,191,191,0.4); background: rgba(18,191,191,0.06); }
-    .problem-card-label {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .problem-card-label.bad  { color: var(--red); }
-    .problem-card-label.good { color: var(--teal); }
-    .problem-card-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 32px; line-height: 1; letter-spacing: 0.02em;
-      color: var(--white); margin-bottom: 10px;
-    }
-    .problem-card-body {
-      font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.7;
-    }
-    .problem-intro {
-      font-size: 15px; color: rgba(255,255,255,0.75);
-      line-height: 1.85; max-width: 640px;
-    }
-    .problem-intro strong { color: var(--teal); }
-
-    /* ─── Algorithm section ─── */
-    .algo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: start;
-    }
-    .algo-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 28px;
-    }
-    .input-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 14px;
-      border: 1px solid var(--rule);
-      border-radius: 6px;
-      background: var(--white);
-    }
-    .input-symbol {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      color: var(--red);
-      min-width: 52px;
-      line-height: 1;
-    }
-    .input-detail {}
-    .input-name { font-size: 13px; font-weight: 600; color: var(--ink); }
-    .input-desc { font-size: 11.5px; color: var(--ink3); margin-top: 2px; line-height: 1.45; }
-
-    .formula-box {
+    /* Dashboard — visual flow of the algorithm */
+    .dashboard {
       background: var(--black);
-      border-radius: 10px;
-      padding: 32px;
-      margin-top: 28px;
-    }
-    .formula-label {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--teal); margin-bottom: 14px;
-    }
-    .formula {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 0.04em;
-      color: var(--white);
-      line-height: 1.6;
-    }
-    .formula .f-var { color: var(--teal); }
-    .formula .f-op  { color: rgba(255,255,255,0.35); }
-    .formula .f-eq  { color: var(--red); }
-    .formula-note {
-      font-size: 11.5px; color: rgba(255,255,255,0.45);
-      margin-top: 14px; line-height: 1.6;
-    }
-    .formula-note strong { color: rgba(255,255,255,0.7); }
-
-    .section-body {
-      font-size: 14px; color: var(--ink2); line-height: 1.8;
-      max-width: 600px;
-    }
-    .section-body.light { color: rgba(255,255,255,0.7); }
-    .section-body p + p { margin-top: 14px; }
-
-    /* ─── Workout types section ─── */
-    .workout-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-top: 40px;
-    }
-    .workout-card {
-      border-radius: 8px;
+      border-radius: 12px;
+      padding: 40px;
+      margin-top: 48px;
+      position: relative;
       overflow: hidden;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
     }
-    .workout-card-top {
-      background: var(--dark);
-      padding: 20px 20px 16px;
+    .dashboard::before {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 200px; height: 100%;
+      background: linear-gradient(to left, rgba(18,191,191,0.04), transparent);
+    }
+
+    .dash-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 32px;
+    }
+
+    .dash-flow {
+      display: flex; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 24px;
+    }
+    .dash-node {
+      text-align: center; min-width: 110px;
+    }
+    .dash-node-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px; color: var(--teal); line-height: 1;
+    }
+    .dash-node-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); margin-top: 3px;
+    }
+    .dash-node-sub { font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+
+    .dash-arrow {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      min-width: 40px;
+      color: var(--teal-d);
+      font-size: 22px; opacity: 0.6;
+    }
+    .dash-op {
+      text-align: center; min-width: 60px;
+    }
+    .dash-op-sym {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; color: rgba(255,255,255,0.25);
+    }
+
+    .dash-result {
+      background: rgba(18,191,191,0.1);
+      border: 1px solid rgba(18,191,191,0.3);
+      border-radius: 8px;
+      padding: 20px 28px; text-align: center; min-width: 150px;
+    }
+    .dash-result-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px; color: var(--teal); line-height: 1;
+    }
+    .dash-result-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal); opacity: 0.7; margin-top: 3px;
+    }
+
+    .dash-divider {
+      border: none; border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 28px 0;
+    }
+
+    .dash-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .dash-step {
+      border-left: 2px solid rgba(18,191,191,0.25);
+      padding-left: 16px;
+    }
+    .dash-step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 11px; letter-spacing: 0.08em; color: var(--teal); opacity: 0.6;
+      margin-bottom: 6px;
+    }
+    .dash-step-formula {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px; font-weight: 600; color: var(--white);
+      letter-spacing: 0.02em; margin-bottom: 4px;
+    }
+    .dash-step-formula em { color: var(--teal); font-style: normal; }
+    .dash-step-body { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.55; }
+
+    /* Inputs grid */
+    .inputs-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-top: 40px;
+    }
+    .input-card {
+      border: 1px solid var(--rule); border-radius: 8px; padding: 20px;
+      background: var(--white);
+      transition: border-color .2s;
+    }
+    .input-card:hover { border-color: var(--teal-d); }
+    .input-card-sym {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; color: var(--black); line-height: 1; margin-bottom: 8px;
+    }
+    .input-card-sym sub { font-size: 16px; }
+    .input-card-name { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .input-card-desc { font-size: 11px; color: var(--ink3); line-height: 1.5; }
+
+    /* ════════════════════════════════════
+       WORKOUT TYPES — dark section
+    ════════════════════════════════════ */
+    .workouts-section {
+      background: var(--black);
+      padding: 140px var(--pad) 100px;
       position: relative;
     }
-    .workout-card-top.teal { background: var(--teal-d); }
-    .workout-card-type {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 34px; letter-spacing: 0.04em;
-      color: var(--white); line-height: 1;
-    }
-    .workout-card-effort {
-      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; color: rgba(255,255,255,0.55);
-      margin-top: 4px;
-    }
-    .workout-card-body { padding: 18px 20px 20px; }
-    .threshold-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px; line-height: 1;
-      color: var(--teal);
-    }
-    .threshold-unit { font-size: 13px; color: rgba(255,255,255,0.4); margin-left: 3px; }
-    .threshold-label {
-      font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      color: rgba(255,255,255,0.4); margin-bottom: 4px;
-    }
-    .workout-floor {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 11px;
-      color: rgba(255,255,255,0.45);
-    }
-    .workout-floor strong { color: rgba(255,255,255,0.7); }
-    .workout-desc {
-      font-size: 12px;
-      color: rgba(255,255,255,0.55);
-      line-height: 1.55;
-      margin-top: 8px;
-    }
-    .workout-example {
-      font-size: 10.5px;
-      color: var(--teal);
-      margin-top: 8px;
-      opacity: 0.8;
-    }
-
-    /* ─── Worked example ─── */
-    .example-athlete {
+    .workouts-section::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 120px;
       background: var(--black);
-      border: 1px solid rgba(18,191,191,0.2);
-      border-radius: 10px;
-      padding: 28px;
-      margin-top: 32px;
-    }
-    .example-label {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--teal); margin-bottom: 18px;
-    }
-    .example-inputs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .example-input-cell { text-align: center; }
-    .example-input-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 38px; color: var(--white); line-height: 1;
-    }
-    .example-input-val span { font-size: 16px; color: rgba(255,255,255,0.4); }
-    .example-input-name {
-      font-size: 10px; color: rgba(255,255,255,0.4);
-      letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px;
-    }
-    .example-divider {
-      border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0 0 20px;
-    }
-    .example-results {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    .example-result-cell {
-      border: 1px solid rgba(18,191,191,0.15);
-      border-radius: 6px;
-      padding: 14px 12px;
-      text-align: center;
-    }
-    .example-result-type {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--teal); margin-bottom: 6px;
-    }
-    .example-result-hr {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 34px; color: var(--white); line-height: 1;
-    }
-    .example-result-hr span { font-size: 13px; color: rgba(255,255,255,0.35); }
-    .example-result-floor {
-      font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 4px;
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+      /* creates diagonal entry from white above */
     }
 
-    /* ─── Figure sections ─── */
-    .figure-feature {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--pad);
-      align-items: center;
-      margin-top: 48px;
+    .workouts-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 2px; margin-top: 48px;
     }
-    .figure-feature + .figure-feature { margin-top: 40px; }
-    .figure-feature.flip .fig-img  { order: 2; }
-    .figure-feature.flip .fig-text { order: 1; }
+    .wk-card {
+      background: rgba(255,255,255,0.03);
+      border-top: 3px solid transparent;
+      padding: 32px 24px;
+      transition: background .2s;
+    }
+    .wk-card:hover { background: rgba(255,255,255,0.06); }
+    .wk-card.c-teal  { border-color: var(--teal); }
+    .wk-card.c-teal-d { border-color: var(--teal-d); }
+    .wk-card.c-red   { border-color: var(--red); }
+    .wk-card.c-dark  { border-color: var(--dark); }
 
-    .fig-img {
-      border: 1px solid var(--rule);
+    .wk-type {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-style: italic; font-weight: 700; text-transform: uppercase;
+      font-size: 38px; color: var(--white); line-height: 1; margin-bottom: 4px;
+    }
+    .wk-effort { font-size: 9.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 20px; }
+    .wk-threshold-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 2px; }
+    .wk-threshold-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px; line-height: 1;
+    }
+    .wk-threshold-val.teal  { color: var(--teal); }
+    .wk-threshold-val.teal-d { color: var(--teal-d); }
+    .wk-threshold-val.red   { color: var(--red); }
+    .wk-threshold-val.dark  { color: var(--dark); }
+    .wk-threshold-unit { font-size: 13px; color: rgba(255,255,255,0.3); margin-left: 2px; }
+
+    .wk-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
+    .wk-frac { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+    .wk-floor { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .wk-floor strong { color: rgba(255,255,255,0.7); }
+    .wk-desc { font-size: 11.5px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-top: 10px; }
+    .wk-example { font-size: 10px; color: var(--teal); opacity: 0.7; margin-top: 8px; font-weight: 500; }
+
+    /* Session plan table */
+    .session-block {
+      margin-top: 60px;
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 10px;
       overflow: hidden;
-      background: #fff;
-      cursor: pointer;
-      transition: transform .28s cubic-bezier(.22,.68,0,1.2), box-shadow .28s;
     }
-    .fig-img:hover {
-      transform: scale(1.015);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-    }
-    .fig-img img { width: 100%; height: auto; display: block; }
-
-    .fig-text {}
-    .fig-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 40px; line-height: 1.05; letter-spacing: 0.02em;
-      color: var(--ink); margin-bottom: 12px;
-    }
-    .fig-title span { color: var(--red); }
-    .fig-body { font-size: 13.5px; color: var(--ink2); line-height: 1.75; }
-    .fig-body p + p { margin-top: 12px; }
-    .fig-body strong { color: var(--ink); font-weight: 600; }
-
-    /* ─── Science / dark figure section ─── */
-    .fig-title-dark {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 40px; line-height: 1.05; letter-spacing: 0.02em;
-      color: var(--white); margin-bottom: 12px;
-    }
-    .fig-title-dark span { color: var(--teal); }
-    .fig-body-dark { font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.75; }
-    .fig-body-dark p + p { margin-top: 12px; }
-    .fig-body-dark strong { color: var(--teal); font-weight: 600; }
-
-    .fig-img.dark-bg {
-      border-color: rgba(255,255,255,0.08);
-      background: #fff;
-    }
-
-    /* ─── Session plan table ─── */
-    .session-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 28px;
-      font-size: 12.5px;
-    }
-    .session-table th {
-      text-align: left;
-      padding: 8px 14px;
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
+    .session-header {
+      padding: 16px 24px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .session-table td {
-      padding: 9px 14px;
-      color: rgba(255,255,255,0.75);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .session-table td.rep-num { color: rgba(255,255,255,0.35); }
-    .session-table td.hr-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px; color: var(--teal); letter-spacing: 0.04em;
-    }
-    .session-table td.drift-val { color: rgba(18,191,191,0.6); font-size: 11.5px; }
+    .session-header-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); }
+    .session-header-title { font-size: 12.5px; color: rgba(255,255,255,0.5); }
+    .session-table { width: 100%; border-collapse: collapse; }
+    .session-table th { padding: 10px 16px; font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .session-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12.5px; color: rgba(255,255,255,0.65); }
+    .td-rep { color: rgba(255,255,255,0.25) !important; font-size: 11px !important; }
+    .td-hr { font-family: 'Bebas Neue', sans-serif !important; font-size: 22px !important; color: var(--teal) !important; letter-spacing: 0.04em; }
+    .td-drift { color: rgba(18,191,191,0.5) !important; font-size: 11px !important; }
+    .session-note { padding: 10px 24px 14px; font-size: 10.5px; color: rgba(255,255,255,0.25); }
 
-    /* ─── Method section ─── */
+    /* ════════════════════════════════════
+       SCIENCE — alternating feature rows
+    ════════════════════════════════════ */
+    .science-section {
+      background: var(--white);
+      padding: 100px var(--pad) 80px;
+      position: relative;
+    }
+    /* diagonal top entry */
+    .science-section::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px;
+      background: var(--white);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+
+    .science-rows { margin-top: 60px; display: flex; flex-direction: column; gap: 60px; }
+    .science-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 40px; align-items: center;
+    }
+    .science-row.flip .sci-img  { order: 2; }
+    .science-row.flip .sci-text { order: 1; }
+
+    .sci-img {
+      border-radius: 10px; overflow: hidden;
+      background: #0d0002;
+      cursor: pointer;
+      transition: transform .3s cubic-bezier(.22,.68,0,1.15), box-shadow .3s;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    .sci-img:hover { transform: scale(1.018); box-shadow: 0 12px 48px rgba(0,0,0,0.22); }
+    .sci-img img { width: 100%; height: auto; display: block; }
+
+    .sci-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(0,127,127,0.12); border: 1px solid rgba(0,127,127,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 16px;
+    }
+    .sci-headline {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-style: italic; font-weight: 700; text-transform: uppercase;
+      font-size: 38px; line-height: 0.95; color: var(--ink); margin-bottom: 14px;
+    }
+    .sci-headline span { color: var(--teal-d); }
+    .sci-body { font-size: 13.5px; color: var(--ink2); line-height: 1.8; }
+    .sci-body p + p { margin-top: 12px; }
+    .sci-body strong { color: var(--ink); font-weight: 600; }
+
+    /* ════════════════════════════════════
+       METHOD — dark, with collapsible drawer
+    ════════════════════════════════════ */
+    .method-section {
+      background: var(--black);
+      padding: 100px var(--pad) 80px;
+      position: relative;
+    }
+    .method-section::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px;
+      background: var(--black);
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+    }
+
     .method-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: start;
-    }
-    .comp-list { list-style: none; margin-top: 24px; }
-    .comp-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--rule);
-    }
-    .comp-item:last-child { border-bottom: none; }
-    .comp-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
-    .comp-desc { font-size: 11.5px; color: var(--ink3); line-height: 1.5; }
-    .comp-src  { font-size: 10.5px; color: var(--ink3); text-align: right; white-space: nowrap; flex-shrink: 0; padding-top: 1px; }
-
-    .ref-list {
-      font-size: 12px; color: var(--ink3); line-height: 1.7;
-    }
-    .ref-list li { margin-bottom: 8px; padding-left: 14px; position: relative; }
-    .ref-list li::before {
-      content: '—';
-      position: absolute; left: 0;
-      color: var(--red);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      margin-top: 48px; align-items: start;
     }
 
-    /* ─── Limitations ─── */
+    /* Source cards — 5 compact items */
+    .source-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+    .source-card {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 16px; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px; background: rgba(255,255,255,0.02);
+      transition: border-color .2s;
+    }
+    .source-card:hover { border-color: rgba(18,191,191,0.25); }
+    .source-card-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; color: var(--teal); line-height: 1; min-width: 28px;
+    }
+    .source-card-name { font-size: 12.5px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+    .source-card-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+    .source-card-ref  { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+
+    /* Accordion drawer */
+    .method-drawer { margin-top: 16px; }
+    .drawer-toggle {
+      width: 100%; text-align: left;
+      background: none; border: 1px solid rgba(18,191,191,0.2);
+      border-radius: 6px; padding: 14px 20px;
+      color: var(--teal); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Inter', sans-serif;
+      transition: background .18s;
+    }
+    .drawer-toggle:hover { background: rgba(18,191,191,0.06); }
+    .drawer-toggle .arrow { transition: transform .25s; }
+    .drawer-toggle.open .arrow { transform: rotate(180deg); }
+    .drawer-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s cubic-bezier(.4,0,.2,1);
+    }
+    .drawer-body.open { max-height: 600px; }
+    .drawer-inner { padding: 20px 0 8px; }
+
     .limit-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 28px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     }
     .limit-card {
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 6px;
-      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px; padding: 16px;
     }
     .limit-num {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 36px; color: var(--red); line-height: 1; margin-bottom: 6px;
+      font-size: 30px; color: var(--red); line-height: 1; margin-bottom: 5px;
     }
-    .limit-title { font-size: 12.5px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
-    .limit-body  { font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.55; }
+    .limit-title { font-size: 11.5px; font-weight: 600; color: var(--white); margin-bottom: 3px; }
+    .limit-body  { font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.5; }
 
-    /* ─── Footer ─── */
+    .ref-list { list-style: none; margin-top: 16px; }
+    .ref-list li {
+      font-size: 11px; color: rgba(255,255,255,0.35); padding: 7px 0 7px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; line-height: 1.55;
+    }
+    .ref-list li::before { content: '—'; position: absolute; left: 0; color: var(--teal); opacity: 0.5; }
+
+    /* ════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════ */
     footer {
-      background: #1a0404;
+      background: #0d0002;
       padding: 60px var(--pad) 40px;
     }
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 32px;
+    .footer-top {
+      max-width: var(--max); margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .footer-brand {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 42px; letter-spacing: 0.04em;
-      color: var(--white); margin-bottom: 12px;
+      font-size: 48px; letter-spacing: 0.04em; color: var(--white); margin-bottom: 10px;
     }
-    .footer-brand span { color: var(--teal); }
-    .footer-desc {
-      font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 240px;
-    }
-    .footer-col h4 {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-      color: rgba(255,255,255,0.35); margin-bottom: 12px;
-    }
-    .footer-col p, .footer-col address {
-      font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.9; font-style: normal;
-    }
+    .footer-brand em { color: var(--teal); font-style: normal; }
+    .footer-tagline { font-size: 11.5px; color: rgba(255,255,255,0.35); line-height: 1.7; max-width: 220px; }
+    .footer-col h4 { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 12px; }
+    .footer-col p, .footer-col address { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.9; font-style: normal; }
     .footer-base {
-      max-width: var(--max);
-      margin: 32px auto 0;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      font-size: 11px; color: rgba(255,255,255,0.25);
+      max-width: var(--max); margin: 24px auto 0;
+      font-size: 10.5px; color: rgba(255,255,255,0.2);
       display: flex; justify-content: space-between;
     }
 
-    /* ─── Lightbox ─── */
-    .lb-overlay {
-      display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(10,0,0,0.7);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    /* ── Lightbox ── */
+    .lb-ov {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(10,0,0,0.85); backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       align-items: center; justify-content: center;
-      padding: 32px; opacity: 0; transition: opacity .22s;
+      padding: 28px; opacity: 0; transition: opacity .22s;
     }
-    .lb-overlay.open  { display: flex; }
-    .lb-overlay.visible { opacity: 1; }
+    .lb-ov.open { display: flex; }
+    .lb-ov.vis  { opacity: 1; }
     .lb-panel {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      max-width: min(90vw, 900px);
-      max-height: 88vh;
-      transform: scale(.95);
-      transition: transform .25s cubic-bezier(.22,.68,0,1.1);
+      background: #0d0002; border-radius: 10px; overflow: hidden;
+      max-width: min(90vw, 960px); max-height: 88vh;
+      transform: scale(.95); transition: transform .25s cubic-bezier(.22,.68,0,1.1);
       position: relative;
     }
-    .lb-overlay.visible .lb-panel { transform: scale(1); }
+    .lb-ov.vis .lb-panel { transform: scale(1); }
     .lb-panel img { width: 100%; height: auto; display: block; max-height: 88vh; object-fit: contain; }
-    .lb-close {
-      position: absolute; top: 12px; right: 14px;
-      background: rgba(0,0,0,0.6); border: none;
-      color: #fff; font-size: 18px; width: 32px; height: 32px;
-      border-radius: 50%; cursor: pointer; display: flex;
-      align-items: center; justify-content: center;
-      transition: background .15s;
+    .lb-x {
+      position: absolute; top: 10px; right: 12px;
+      background: rgba(0,0,0,0.6); border: none; color: #fff;
+      font-size: 17px; width: 30px; height: 30px;
+      border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
-    .lb-close:hover { background: rgba(0,0,0,0.85); }
 
-    /* ─── Scroll reveal ─── */
+    /* ── Scroll reveal ── */
     .reveal {
-      opacity: 0; transform: translateY(28px);
+      opacity: 0; transform: translateY(30px);
       transition: opacity .65s cubic-bezier(.22,.68,0,1), transform .65s cubic-bezier(.22,.68,0,1);
     }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal.vis { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: .08s; }
+    .reveal-d2 { transition-delay: .16s; }
+    .reveal-d3 { transition-delay: .24s; }
+    .reveal-d4 { transition-delay: .32s; }
 
-    /* ─── Mobile ─── */
-    @media (max-width: 720px) {
-      :root { --pad: 18px; --diag: 40px; }
-      .hero-inner { grid-template-columns: 1fr; gap: 32px; }
-      .hero-wordmark { font-size: 72px; }
-      .hero-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(205,11,11,0.3); padding-top: 24px; }
-      .hero-stats { grid-template-columns: 1fr 1fr; }
-      .problem-grid { grid-template-columns: 1fr; }
-      .algo-grid { grid-template-columns: 1fr; }
-      .workout-grid { grid-template-columns: 1fr 1fr; }
-      .figure-feature, .figure-feature.flip { grid-template-columns: 1fr; }
-      .figure-feature .fig-img, .figure-feature.flip .fig-img { order: 1 !important; }
-      .figure-feature .fig-text, .figure-feature.flip .fig-text { order: 2 !important; }
-      .example-inputs { grid-template-columns: 1fr 1fr; }
-      .example-results { grid-template-columns: 1fr 1fr; }
-      .method-grid { grid-template-columns: 1fr; gap: 32px; }
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      :root { --pad: 20px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(205,11,11,0.3); padding-top: 28px; }
+      .hero-stat-grid { grid-template-columns: 1fr 1fr; }
+      .problem-inner { grid-template-columns: 1fr; }
+      .prob-block.bad::after { display: none; }
+      .inputs-grid { grid-template-columns: 1fr 1fr; }
+      .workouts-grid { grid-template-columns: 1fr 1fr; }
+      .science-row, .science-row.flip { grid-template-columns: 1fr; }
+      .science-row .sci-img, .science-row.flip .sci-img { order: 1 !important; }
+      .science-row .sci-text, .science-row.flip .sci-text { order: 2 !important; }
+      .method-grid { grid-template-columns: 1fr; gap: 40px; }
       .limit-grid { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .dash-steps { grid-template-columns: 1fr; }
       .nav-links { display: none; }
       .hamburger { display: flex; }
-      .display-heading { font-size: 52px; }
     }
   </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<!-- Sidebar -->
+<div class="sob" id="sob"></div>
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-brand">Recov<span>HR</span></div>
-  <a href="#problem"  onclick="closeSidebar()">The Problem</a>
-  <a href="#algorithm" onclick="closeSidebar()">Algorithm</a>
-  <a href="#workouts" onclick="closeSidebar()">Workout Types</a>
-  <a href="#science"  onclick="closeSidebar()">The Science</a>
-  <a href="#method"   onclick="closeSidebar()">Method</a>
+  <div class="sidebar-brand">Recov<em>HR</em></div>
+  <a href="#problem"   onclick="closeSB()">The Problem</a>
+  <a href="#algorithm" onclick="closeSB()">Algorithm</a>
+  <a href="#workouts"  onclick="closeSB()">Workout Types</a>
+  <a href="#science"   onclick="closeSB()">The Science</a>
+  <a href="#method"    onclick="closeSB()">Method</a>
   <a href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Paper ↗</a>
 </div>
 
+<!-- Nav -->
 <div class="nav-spacer"></div>
 <nav>
   <div class="nav-inner">
-    <a class="nav-brand" href="#">Recov<span>HR</span></a>
+    <a class="nav-brand" href="#">Recov<em>HR</em></a>
     <div class="nav-links">
       <a href="#problem">Problem</a>
       <a href="#algorithm">Algorithm</a>
-      <a href="#workouts">Workout Types</a>
-      <a href="#science">The Science</a>
+      <a href="#workouts">Workouts</a>
+      <a href="#science">Science</a>
       <a href="#method">Method</a>
-      <a class="nav-paper" href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Paper ↗</a>
+      <a class="nav-cta" href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Read the Paper</a>
     </div>
-    <button class="hamburger" id="hamburger" aria-label="Menu">
+    <button class="hamburger" id="hbg" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- ─── Hero ─── -->
+<!-- ════════ HERO ════════ -->
 <div class="hero">
+  <div class="hero-band"></div>
   <div class="hero-inner">
     <div class="hero-left">
-      <div class="hero-eyebrow">recovhr.com · Luke Popler · 2026</div>
-      <div class="hero-wordmark">Recov<span>HR</span></div>
-      <div class="hero-tagline">Know when to go again.</div>
-    </div>
-    <div class="hero-right">
-      <div class="hero-text">
-        <p>
-          Every interval workout has a window. Rest <strong>too little</strong> and you're over-stressing the system — rep quality collapses, adaptation suffers. Rest <strong>too long</strong> and you're losing potential fitness gains.
-        </p>
-        <p>
-          RecovHR is a heart rate reserve–based algorithm that tells you exactly when to start the next rep — calibrated to your body, your workout type, and where you are in the session.
-        </p>
+      <div class="hero-eyebrow">recovhr.com &nbsp;·&nbsp; Luke Popler &nbsp;·&nbsp; 2026</div>
+      <div class="hero-wordmark-wrap">
+        <div class="hero-headline">
+          Know when<br>to <em>go again.</em>
+        </div>
       </div>
-      <div class="hero-stats">
+      <p class="hero-sub">
+        Every interval has a window. <strong>RecovHR</strong> computes your exact recovery heart rate threshold — calibrated to your body, your workout type, and where you are in the session.
+      </p>
+      <div>
+        <a class="btn-primary" href="#algorithm">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          See the Algorithm
+        </a>
+        <a class="btn-secondary" href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank">Read the Paper ↗</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-stat-grid">
         <div class="hero-stat">
           <div class="hero-stat-num">4</div>
-          <div class="hero-stat-label">biometric inputs needed to run the algorithm</div>
+          <div class="hero-stat-label">biometric inputs</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-num">1</div>
-          <div class="hero-stat-label">number output — the HR to drop to before going again</div>
+          <div class="hero-stat-label">number output per rep</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-num">4</div>
-          <div class="hero-stat-label">workout types with distinct recovery thresholds</div>
+          <div class="hero-stat-label">distinct workout thresholds</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-num">8+</div>
-          <div class="hero-stat-label">published studies grounding the formula</div>
+          <div class="hero-stat-label">published studies as basis</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ─── The Problem ─── -->
-<div class="section-dark" id="problem">
-  <div class="section-inner">
-    <div class="section-label">The Problem</div>
-    <div class="display-heading">The Rest<br><span>Window</span></div>
-    <p class="problem-intro">
-      Clock-based rest intervals — "jog 200m," "wait 90 seconds" — don't adapt to you. A trained runner with a resting HR of 42 bpm recovers to a physiologically ready state in half the time of a recreational runner at 68 bpm. A fixed prescription <strong>systematically overtrians or undertrains</strong> one of them every single session.
-    </p>
-    <div class="problem-grid reveal">
-      <div class="problem-card bad">
-        <div class="problem-card-label bad">Too Little Rest</div>
-        <div class="problem-card-title">Over-stressed</div>
-        <div class="problem-card-body">Heart rate is still near 80% HRmax. Phosphocreatine only ~50% restored. Blood lactate still rising. Each rep is harder than the last — not because you're working harder, but because you never recovered from the previous one. Session quality collapses by rep 4.</div>
-      </div>
-      <div class="problem-card good">
-        <div class="problem-card-label good">Too Much Rest</div>
-        <div class="problem-card-title">Undertrained</div>
-        <div class="problem-card-body">Heart rate near resting. Sympathetic nervous system fully withdrawn. The first 30–60 seconds of the next rep is wasted re-ramping toward target intensity. You're not accumulating VO2max time — you're just getting your heart started again. Training stimulus is diluted.</div>
-      </div>
+<!-- ════════ PROBLEM ════════ -->
+<div class="problem-section" id="problem">
+  <div class="problem-inner">
+    <div class="prob-block bad reveal">
+      <div class="prob-tag red">Too Little Rest</div>
+      <div class="prob-icon">🔴</div>
+      <div class="prob-headline">Over-<br>Stressed</div>
+      <p class="prob-body">
+        HR still at 80% HRmax. Phosphocreatine only <strong>~50% restored</strong>. Blood lactate still rising. Each rep is harder than the last — not because you're working harder, but because you never recovered from the previous one.
+      </p>
+      <div class="prob-stat red">3–4 reps</div>
+      <div class="prob-stat-sub">before session quality collapses</div>
+    </div>
+    <div class="prob-block good reveal reveal-d1">
+      <div class="prob-tag teal">Too Much Rest</div>
+      <div class="prob-icon">🔵</div>
+      <div class="prob-headline">Under-<br>Trained</div>
+      <p class="prob-body">
+        HR near resting. Sympathetic system fully withdrawn. The first <strong>30–60 seconds</strong> of the next rep is wasted re-ramping toward target intensity. Training stimulus is systematically diluted.
+      </p>
+      <div class="prob-stat teal">45–75s</div>
+      <div class="prob-stat-sub">of wasted time per rep in an 8-rep session</div>
     </div>
   </div>
 </div>
 
-<!-- ─── Algorithm ─── -->
-<div class="section-light" id="algorithm">
+<!-- ════════ ALGORITHM ════════ -->
+<div class="algo-section" id="algorithm">
   <div class="section-inner">
-    <div class="section-label light">The Algorithm</div>
-    <div class="display-heading dark">Heart Rate<br><span class="red">Reserve</span></div>
-    <div class="algo-grid">
-      <div>
-        <p class="section-body">
-          RecovHR uses the Karvonen Heart Rate Reserve (HRR) formula — physiologically superior to raw %HRmax because it scales to the individual's usable cardiac range, not a population average.
-        </p>
-        <div class="algo-inputs reveal">
-          <div class="input-row">
-            <div class="input-symbol">HR<sub style="font-size:16px">max</sub></div>
-            <div class="input-detail">
-              <div class="input-name">Maximum Heart Rate</div>
-              <div class="input-desc">Measured directly, or estimated: 208 − (0.7 × age). Tanaka formula — more accurate than 220 − age across adult populations.</div>
-            </div>
-          </div>
-          <div class="input-row">
-            <div class="input-symbol">HR<sub style="font-size:16px">rest</sub></div>
-            <div class="input-detail">
-              <div class="input-name">Resting Heart Rate</div>
-              <div class="input-desc">Measured seated, first thing in the morning. The single most individualizing input — two runners with the same HRmax can have 30 bpm of resting HR difference.</div>
-            </div>
-          </div>
-          <div class="input-row">
-            <div class="input-symbol">LTHR</div>
-            <div class="input-detail">
-              <div class="input-name">Lactate Threshold Heart Rate</div>
-              <div class="input-desc">30-minute all-out time trial — average HR of the final 20 minutes. Or estimated as 87% × HRmax. Determines which workout type you're doing.</div>
-            </div>
-          </div>
-          <div class="input-row">
-            <div class="input-symbol">Age</div>
-            <div class="input-detail">
-              <div class="input-name">Age</div>
-              <div class="input-desc">Only required if HRmax is not directly measured. Used in the Tanaka formula to estimate HRmax.</div>
-            </div>
-          </div>
-        </div>
+    <div class="section-eyebrow teal">The Algorithm</div>
+    <div class="section-heading dark">Heart Rate <em style="color:var(--teal-d);">Reserve</em></div>
+
+    <!-- 4 inputs -->
+    <div class="inputs-grid">
+      <div class="input-card reveal">
+        <div class="input-card-sym">HR<sub>max</sub></div>
+        <div class="input-card-name">Maximum Heart Rate</div>
+        <div class="input-card-desc">Measured, or estimated via Tanaka: 208 − (0.7 × age). More accurate than 220 − age across adults.</div>
       </div>
-      <div>
-        <div class="formula-box reveal">
-          <div class="formula-label">Step 1 — Heart Rate Reserve</div>
-          <div class="formula">
-            <span class="f-var">HRR</span> <span class="f-eq">=</span> HR<sub>max</sub> <span class="f-op">−</span> HR<sub>rest</sub>
-          </div>
-          <div class="formula-note" style="margin-top:8px; margin-bottom:24px;">Your usable cardiac range — from minimal to maximal output.</div>
-
-          <div class="formula-label">Step 2 — Recovery Threshold</div>
-          <div class="formula">
-            <span class="f-var">Threshold</span> <span class="f-eq">=</span> (<span class="f-var">HRR</span> <span class="f-op">×</span> <span class="f-var">f</span>) <span class="f-op">+</span> HR<sub>rest</sub>
-          </div>
-          <div class="formula-note" style="margin-top:8px; margin-bottom:24px;">where <strong>f</strong> is the HRR fraction for your workout type (see below).</div>
-
-          <div class="formula-label">Step 3 — Cardiac Drift Correction</div>
-          <div class="formula">
-            <span class="f-var">Adjusted</span> <span class="f-eq">=</span> Threshold <span class="f-op">+</span> (n<span class="f-op">−</span>1) <span class="f-op">×</span> 1.5
-          </div>
-          <div class="formula-note">Applied from rep 3 onward. n = current rep number. Prevents late-rep thresholds from becoming artificially difficult due to progressive cardiac drift (+1–2 bpm/rep from thermoregulation and dehydration).</div>
-        </div>
-
-        <div class="formula-box reveal" style="margin-top:14px; background: #1a0808;">
-          <div class="formula-label">Ready to go when:</div>
-          <div class="formula" style="font-size:18px; line-height:2;">
-            <span class="f-var">current HR</span> <span class="f-op">≤</span> <span class="f-var">Adjusted</span><br>
-            <span class="f-op">AND</span> elapsed rest <span class="f-op">≥</span> <span class="f-var">min floor</span>
-          </div>
-        </div>
+      <div class="input-card reveal reveal-d1">
+        <div class="input-card-sym">HR<sub>rest</sub></div>
+        <div class="input-card-name">Resting Heart Rate</div>
+        <div class="input-card-desc">Morning seated measurement. The most individualizing input — two runners at the same HRmax can differ by 30 bpm here.</div>
+      </div>
+      <div class="input-card reveal reveal-d2">
+        <div class="input-card-sym">LTHR</div>
+        <div class="input-card-name">Lactate Threshold HR</div>
+        <div class="input-card-desc">30-min all-out time trial, average HR of final 20 min. Or estimate as 87% × HRmax. Determines your workout type.</div>
+      </div>
+      <div class="input-card reveal reveal-d3">
+        <div class="input-card-sym">Age</div>
+        <div class="input-card-name">Age</div>
+        <div class="input-card-desc">Only needed when HRmax is not directly measured. Used in the Tanaka formula.</div>
       </div>
     </div>
 
-    <!-- Worked example -->
-    <div class="example-athlete reveal" style="margin-top:48px;">
-      <div class="example-label">Worked Example · Trained runner, age 32</div>
-      <div class="example-inputs">
-        <div class="example-input-cell">
-          <div class="example-input-val">188 <span>bpm</span></div>
-          <div class="example-input-name">HRmax</div>
+    <!-- Dashboard -->
+    <div class="dashboard reveal" style="margin-top:40px;">
+      <div class="dash-label">Algorithm Dashboard · Sample athlete: HRmax 188 · HRrest 48 · HRR 140</div>
+      <div class="dash-flow">
+        <div class="dash-node">
+          <div class="dash-node-val">188</div>
+          <div class="dash-node-label">HR<sub>max</sub></div>
         </div>
-        <div class="example-input-cell">
-          <div class="example-input-val">48 <span>bpm</span></div>
-          <div class="example-input-name">HRrest</div>
+        <div class="dash-op"><div class="dash-op-sym">−</div></div>
+        <div class="dash-node">
+          <div class="dash-node-val">48</div>
+          <div class="dash-node-label">HR<sub>rest</sub></div>
         </div>
-        <div class="example-input-cell">
-          <div class="example-input-val">163 <span>bpm</span></div>
-          <div class="example-input-name">LTHR</div>
+        <div class="dash-arrow">→</div>
+        <div class="dash-node">
+          <div class="dash-node-val" style="color:#fff;">140</div>
+          <div class="dash-node-label">HRR</div>
+          <div class="dash-node-sub">usable range</div>
         </div>
-        <div class="example-input-cell">
-          <div class="example-input-val">140 <span>bpm</span></div>
-          <div class="example-input-name">HRR</div>
+        <div class="dash-op"><div class="dash-op-sym">×</div></div>
+        <div class="dash-node">
+          <div class="dash-node-val" style="font-size:28px; color:rgba(255,255,255,0.5);">0.42</div>
+          <div class="dash-node-label">fraction<br>(VO2max)</div>
+        </div>
+        <div class="dash-op"><div class="dash-op-sym">+</div></div>
+        <div class="dash-node">
+          <div class="dash-node-val" style="font-size:28px; color:rgba(255,255,255,0.4);">48</div>
+          <div class="dash-node-label">HR<sub>rest</sub></div>
+        </div>
+        <div class="dash-arrow">→</div>
+        <div class="dash-result">
+          <div class="dash-result-val">107</div>
+          <div class="dash-result-label">bpm · start next rep</div>
         </div>
       </div>
-      <hr class="example-divider">
-      <div class="example-results">
-        <div class="example-result-cell">
-          <div class="example-result-type">VO2max</div>
-          <div class="example-result-hr">107 <span>bpm</span></div>
-          <div class="example-result-floor">Min 90s · f = 0.42</div>
+
+      <hr class="dash-divider">
+
+      <div class="dash-steps">
+        <div class="dash-step">
+          <div class="dash-step-num">Step 01</div>
+          <div class="dash-step-formula"><em>HRR</em> = HR<sub>max</sub> − HR<sub>rest</sub></div>
+          <div class="dash-step-body">Heart rate reserve — your usable cardiac range. The foundation all thresholds are built on.</div>
         </div>
-        <div class="example-result-cell">
-          <div class="example-result-type">LT</div>
-          <div class="example-result-hr">118 <span>bpm</span></div>
-          <div class="example-result-floor">Min 60s · f = 0.50</div>
+        <div class="dash-step">
+          <div class="dash-step-num">Step 02</div>
+          <div class="dash-step-formula"><em>Threshold</em> = (HRR × f) + HR<sub>rest</sub></div>
+          <div class="dash-step-body">f is the HRR fraction for your workout type — 0.42 for VO2max, 0.50 for LT, 0.35 for speed, 0.38 for easy.</div>
         </div>
-        <div class="example-result-cell">
-          <div class="example-result-type">Speed</div>
-          <div class="example-result-hr">97 <span>bpm</span></div>
-          <div class="example-result-floor">Min 120s · f = 0.35</div>
-        </div>
-        <div class="example-result-cell">
-          <div class="example-result-type">Easy</div>
-          <div class="example-result-hr">101 <span>bpm</span></div>
-          <div class="example-result-floor">Min 30s · f = 0.38</div>
+        <div class="dash-step">
+          <div class="dash-step-num">Step 03 — Drift Correction</div>
+          <div class="dash-step-formula"><em>Adjusted</em> = Threshold + (n−1) × 1.5</div>
+          <div class="dash-step-body">From rep 3 onward. n = current rep. Prevents late-rep thresholds from becoming artificially demanding due to cardiac drift (+1–2 bpm/rep).</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ─── Workout Types ─── -->
-<div class="section-dark" id="workouts">
+<!-- ════════ WORKOUT TYPES ════════ -->
+<div class="workouts-section" id="workouts">
   <div class="section-inner">
-    <div class="section-label">Workout Types</div>
-    <div class="display-heading">Four<br><span>Workouts.</span><br>Four Thresholds.</div>
-    <p class="section-body light" style="margin-top:16px;">Different training intensities produce different physiological demands — and different recovery needs. RecovHR applies distinct HRR fractions to match the recovery threshold to the actual stress of the work.</p>
+    <div class="section-eyebrow" style="color:var(--teal);">Workout Types</div>
+    <div class="section-heading light">Four <em>Thresholds.</em></div>
+    <p style="font-size:13.5px; color:rgba(255,255,255,0.5); margin-top:10px; max-width:560px; line-height:1.75;">Different intensities produce different physiological demands. RecovHR applies distinct HRR fractions so the threshold matches the actual stress of the work.</p>
 
-    <div class="workout-grid reveal">
-      <div class="workout-card">
-        <div class="workout-card-top">
-          <div class="workout-card-type">VO2MAX</div>
-          <div class="workout-card-effort">90–100% HRmax · 3–5 min reps</div>
-        </div>
-        <div class="workout-card-body">
-          <div class="threshold-label">HRR Fraction</div>
-          <div class="threshold-num">0.42 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
-          <div class="workout-floor">Min rest: <strong>90 seconds</strong></div>
-          <div class="workout-desc">Deepest aerobic recovery. Incomplete recovery is intentional — preserves elevated cardiac stress across the session. Aligns with the 4×4 Norwegian protocol's upper bound.</div>
-          <div class="workout-example">400m–1600m repeats · 5K race effort</div>
-        </div>
+    <div class="workouts-grid reveal">
+      <div class="wk-card c-teal">
+        <div class="wk-type">VO2MAX</div>
+        <div class="wk-effort">90–100% HRmax · 3–5 min reps</div>
+        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-val teal">107 <span class="wk-threshold-unit">bpm</span></div>
+        <hr class="wk-divider">
+        <div class="wk-frac">HRR fraction: 0.42</div>
+        <div class="wk-floor">Min rest: <strong>90 seconds</strong></div>
+        <div class="wk-desc">Incomplete recovery is intentional — preserves elevated cardiac stress across the session. Matches the 4×4 Norwegian protocol.</div>
+        <div class="wk-example">400m–1600m repeats · 5K race effort</div>
       </div>
 
-      <div class="workout-card">
-        <div class="workout-card-top teal">
-          <div class="workout-card-type">LT</div>
-          <div class="workout-card-effort">88–97% LTHR · 8–20 min reps</div>
-        </div>
-        <div class="workout-card-body">
-          <div class="threshold-label">HRR Fraction</div>
-          <div class="threshold-num">0.50 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
-          <div class="workout-floor">Min rest: <strong>60 seconds</strong></div>
-          <div class="workout-desc">Shorter recovery needed — effort didn't drive HR to maximum. The goal is partial recovery that preserves the lactate accumulation signal driving mitochondrial adaptation.</div>
-          <div class="workout-example">Tempo intervals · cruise intervals</div>
-        </div>
+      <div class="wk-card c-teal-d">
+        <div class="wk-type">LT</div>
+        <div class="wk-effort">88–97% LTHR · 8–20 min reps</div>
+        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-val teal-d">118 <span class="wk-threshold-unit">bpm</span></div>
+        <hr class="wk-divider">
+        <div class="wk-frac">HRR fraction: 0.50</div>
+        <div class="wk-floor">Min rest: <strong>60 seconds</strong></div>
+        <div class="wk-desc">Effort didn't drive HR to max — less recovery needed. Partial recovery preserves the lactate signal that drives mitochondrial adaptation.</div>
+        <div class="wk-example">Tempo intervals · cruise intervals</div>
       </div>
 
-      <div class="workout-card">
-        <div class="workout-card-top" style="background:#5a0000;">
-          <div class="workout-card-type">Speed</div>
-          <div class="workout-card-effort">Max effort · sub-30s reps</div>
-        </div>
-        <div class="workout-card-body">
-          <div class="threshold-label">HRR Fraction</div>
-          <div class="threshold-num">0.35 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
-          <div class="workout-floor">Min rest: <strong>120 seconds</strong></div>
-          <div class="workout-desc">HR lags reality by 30–60s for sprint work. The clock floor is primary here — it maps to ~93% PCr resynthesis. HR threshold is a confirmation signal only.</div>
-          <div class="workout-example">Strides · hill sprints · 100–200m reps</div>
-        </div>
+      <div class="wk-card c-red">
+        <div class="wk-type">Speed</div>
+        <div class="wk-effort">Max effort · sub-30s reps</div>
+        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-val red">97 <span class="wk-threshold-unit">bpm</span></div>
+        <hr class="wk-divider">
+        <div class="wk-frac">HRR fraction: 0.35</div>
+        <div class="wk-floor">Min rest: <strong>120 seconds</strong></div>
+        <div class="wk-desc">HR lags 30–60s for sprint work. Clock floor is primary here — maps to 93% PCr resynthesis. HR is a confirmation signal only.</div>
+        <div class="wk-example">Strides · hill sprints · 100–200m reps</div>
       </div>
 
-      <div class="workout-card">
-        <div class="workout-card-top" style="background:#2a5a5a;">
-          <div class="workout-card-type">Easy</div>
-          <div class="workout-card-effort">65–78% HRmax · aerobic effort</div>
-        </div>
-        <div class="workout-card-body">
-          <div class="threshold-label">HRR Fraction</div>
-          <div class="threshold-num">0.38 <span class="threshold-unit">× HRR + HR<sub>rest</sub></span></div>
-          <div class="workout-floor">Min rest: <strong>30 seconds</strong></div>
-          <div class="workout-desc">HR rarely approaches maximum. Primary use is monitoring the work interval itself — preventing aerobic surges from drifting too high and crossing into threshold work.</div>
-          <div class="workout-example">Aerobic fartlek · relaxed surges</div>
-        </div>
+      <div class="wk-card c-dark">
+        <div class="wk-type">Easy</div>
+        <div class="wk-effort">65–78% HRmax · aerobic effort</div>
+        <div class="wk-threshold-label">Start next rep when HR ≤</div>
+        <div class="wk-threshold-val" style="color:var(--dark);">101 <span class="wk-threshold-unit">bpm</span></div>
+        <hr class="wk-divider">
+        <div class="wk-frac">HRR fraction: 0.38</div>
+        <div class="wk-floor">Min rest: <strong>30 seconds</strong></div>
+        <div class="wk-desc">HR rarely approaches max. Primary use is monitoring the work interval itself — preventing surges from drifting into threshold territory.</div>
+        <div class="wk-example">Aerobic fartlek · relaxed surges</div>
       </div>
     </div>
 
     <!-- Session plan table -->
-    <div class="reveal" style="margin-top:48px;">
-      <div class="section-label">Session Plan · 8×400m VO2max · Same athlete as above</div>
+    <div class="session-block reveal" style="margin-top:56px;">
+      <div class="session-header">
+        <div class="session-header-label">Session Plan</div>
+        <div class="session-header-title">8×400m VO2max · HRmax 188 · HRrest 48</div>
+      </div>
       <table class="session-table">
         <thead>
           <tr>
             <th>Rep</th>
             <th>Base threshold</th>
-            <th>Drift correction</th>
+            <th>Drift added</th>
             <th>Start when HR ≤</th>
             <th>Min rest</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td class="rep-num">1</td><td>107 bpm</td><td class="drift-val">—</td><td class="hr-val">107</td><td>90s</td></tr>
-          <tr><td class="rep-num">2</td><td>107 bpm</td><td class="drift-val">—</td><td class="hr-val">107</td><td>90s</td></tr>
-          <tr><td class="rep-num">3</td><td>107 bpm</td><td class="drift-val">+3.0 bpm</td><td class="hr-val">110</td><td>90s</td></tr>
-          <tr><td class="rep-num">4</td><td>107 bpm</td><td class="drift-val">+4.5 bpm</td><td class="hr-val">112</td><td>90s</td></tr>
-          <tr><td class="rep-num">5</td><td>107 bpm</td><td class="drift-val">+6.0 bpm</td><td class="hr-val">113</td><td>90s</td></tr>
-          <tr><td class="rep-num">6</td><td>107 bpm</td><td class="drift-val">+7.5 bpm</td><td class="hr-val">115</td><td>90s</td></tr>
-          <tr><td class="rep-num">7</td><td>107 bpm</td><td class="drift-val">+9.0 bpm</td><td class="hr-val">116</td><td>90s</td></tr>
-          <tr><td class="rep-num">8</td><td>107 bpm</td><td class="drift-val">+10.5 bpm</td><td class="hr-val">118</td><td>90s</td></tr>
+          <tr><td class="td-rep">1</td><td>107 bpm</td><td class="td-drift">—</td><td class="td-hr">107</td><td>90s</td></tr>
+          <tr><td class="td-rep">2</td><td>107 bpm</td><td class="td-drift">—</td><td class="td-hr">107</td><td>90s</td></tr>
+          <tr><td class="td-rep">3</td><td>107 bpm</td><td class="td-drift">+3.0 bpm</td><td class="td-hr">110</td><td>90s</td></tr>
+          <tr><td class="td-rep">4</td><td>107 bpm</td><td class="td-drift">+4.5 bpm</td><td class="td-hr">112</td><td>90s</td></tr>
+          <tr><td class="td-rep">5</td><td>107 bpm</td><td class="td-drift">+6.0 bpm</td><td class="td-hr">113</td><td>90s</td></tr>
+          <tr><td class="td-rep">6</td><td>107 bpm</td><td class="td-drift">+7.5 bpm</td><td class="td-hr">115</td><td>90s</td></tr>
+          <tr><td class="td-rep">7</td><td>107 bpm</td><td class="td-drift">+9.0 bpm</td><td class="td-hr">116</td><td>90s</td></tr>
+          <tr><td class="td-rep">8</td><td>107 bpm</td><td class="td-drift">+10.5 bpm</td><td class="td-hr">118</td><td>90s</td></tr>
         </tbody>
       </table>
-      <p style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:10px;">Without drift correction, rep 8 would require ≈45–75 extra seconds of rest to reach the same 107 bpm threshold — artificially extending recovery and diluting late-session training stimulus.</p>
+      <div class="session-note">Without drift correction, rep 8 would require ≈45–75 extra seconds — diluting late-session training stimulus.</div>
     </div>
   </div>
 </div>
 
-<!-- ─── Science ─── -->
-<div class="section-light" id="science">
+<!-- ════════ SCIENCE ════════ -->
+<div class="science-section" id="science">
   <div class="section-inner">
-    <div class="section-label light">The Science</div>
-    <div class="display-heading dark">Why These<br><span class="red">Numbers</span></div>
+    <div class="section-eyebrow red">The Science</div>
+    <div class="section-heading dark">Why These <em style="color:var(--red);">Numbers</em></div>
 
-    <div class="figure-feature reveal">
-      <div class="fig-img">
-        <img src="figures/fig1_recovery_curve.png" alt="Heart rate recovery curve and RecovHR thresholds" loading="lazy">
-      </div>
-      <div class="fig-text">
-        <div class="fig-title">The Recovery <span>Curve</span></div>
-        <div class="fig-body">
-          <p>After a hard effort, heart rate follows an exponential decay. The <strong>fast phase</strong> (first ~30s) is driven by parasympathetic reactivation. The <strong>slow phase</strong> (30s–3 min) is sympathetic withdrawal.</p>
-          <p>Each workout type's threshold corresponds to the point on this curve where the athlete's cardiac output can support another high-intensity ramp — not just that the heart is beating slower, but that it is capable of the rapid escalation the next rep demands.</p>
-          <p>The shaded region is the <strong>VO2max sweet spot</strong> — where you've recovered enough to go hard again but haven't waited so long that the training stimulus is lost.</p>
+    <div class="science-rows">
+
+      <div class="science-row reveal">
+        <div class="sci-img">
+          <img src="figures/fig1_recovery_curve.png" alt="HR recovery curve and RecovHR thresholds" loading="lazy">
+        </div>
+        <div class="sci-text">
+          <div class="sci-icon">📈</div>
+          <div class="sci-headline">The Recovery <span>Curve</span></div>
+          <div class="sci-body">
+            <p>After a hard effort, HR follows an exponential decay. The fast phase (~30s) is parasympathetic reactivation. The slow phase (30s–3 min) is sympathetic withdrawal.</p>
+            <p>Each threshold is the point where cardiac output can support another hard ramp — not just that HR is lower, but that the system is physiologically capable of the next effort. The <strong>shaded region is the sweet spot</strong>: recovered enough to go hard, not so rested that stimulus is lost.</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="figure-feature flip reveal">
-      <div class="fig-img">
-        <img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs raw %HRmax comparison" loading="lazy">
-      </div>
-      <div class="fig-text">
-        <div class="fig-title">Why Not Just<br><span>% HRmax</span>?</div>
-        <div class="fig-body">
-          <p>At the same HRmax of 188 bpm, a highly trained runner with resting HR 38 bpm and a recreational runner at resting HR 68 bpm are in <strong>very different physiological states</strong> at "65% HRmax" (122 bpm).</p>
-          <p>The Karvonen formula corrects for this by anchoring recovery to the individual's usable cardiac range — not a population average. The difference in threshold can reach <strong>21 bpm</strong> between these athletes at the same raw percentage.</p>
+      <div class="science-row flip reveal">
+        <div class="sci-img">
+          <img src="figures/fig4_karvonen_vs_pct.png" alt="Karvonen vs raw %HRmax" loading="lazy">
+        </div>
+        <div class="sci-text">
+          <div class="sci-icon">⚗️</div>
+          <div class="sci-headline">Why Not <span>% HRmax?</span></div>
+          <div class="sci-body">
+            <p>At the same HRmax of 188, a trained runner with resting HR 38 and a recreational runner at 68 are in <strong>very different physiological states</strong> at "65% HRmax."</p>
+            <p>Karvonen anchors recovery to the individual's usable cardiac range — not a population average. The difference can reach <strong>21 bpm</strong> between these athletes at the same raw percentage. That's the difference between ready and not ready.</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="figure-feature reveal">
-      <div class="fig-img">
-        <img src="figures/fig5_pcr_kinetics.png" alt="Phosphocreatine resynthesis kinetics" loading="lazy">
-      </div>
-      <div class="fig-text">
-        <div class="fig-title">The Clock<br><span>Floors</span></div>
-        <div class="fig-body">
-          <p>Phosphocreatine (PCr) is the immediate fuel for maximal efforts. Its resynthesis follows first-order kinetics with a half-life of ~30 seconds (Harris et al., 1976). <strong>87% restored at 90 seconds.</strong> 93% at 120 seconds.</p>
-          <p>RecovHR's minimum clock floors are pinned to these milestones — the VO2max floor at 90s (87% PCr), the speed floor at 120s (93% PCr). No matter how fast heart rate drops, these floors prevent starting a rep before the fuel is ready.</p>
+      <div class="science-row reveal">
+        <div class="sci-img">
+          <img src="figures/fig5_pcr_kinetics.png" alt="Phosphocreatine resynthesis kinetics" loading="lazy">
+        </div>
+        <div class="sci-text">
+          <div class="sci-icon">⚡</div>
+          <div class="sci-headline">The Clock <span>Floors</span></div>
+          <div class="sci-body">
+            <p>Phosphocreatine is the immediate fuel for maximal efforts. Its resynthesis has a half-life of ~30 seconds (Harris et al., 1976). <strong>87% restored at 90 seconds.</strong></p>
+            <p>No matter how fast HR drops, RecovHR's clock floors prevent starting a rep before the fuel is physically ready. The VO2max floor (90s) maps to 87% PCr. The speed floor (120s) maps to 93%.</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="figure-feature flip reveal">
-      <div class="fig-img">
-        <img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift correction across 8 reps" loading="lazy">
-      </div>
-      <div class="fig-text">
-        <div class="fig-title">Cardiac<br><span>Drift</span></div>
-        <div class="fig-body">
-          <p>In a 10-rep session, end-of-recovery heart rate rises <strong>1–2 bpm per rep</strong> due to thermoregulation, progressive dehydration, and plasma volume shifts. Without correction, a fixed threshold demands longer and longer rest in late reps.</p>
-          <p>RecovHR's drift correction adds 1.5 bpm per completed rep from rep 3 onward — raising the threshold to match where HR actually sits, not where it would sit without accumulated fatigue. By rep 8, the correction is <strong>+10.5 bpm</strong>.</p>
+      <div class="science-row flip reveal">
+        <div class="sci-img">
+          <img src="figures/fig3_cardiac_drift.png" alt="Cardiac drift correction" loading="lazy">
+        </div>
+        <div class="sci-text">
+          <div class="sci-icon">📡</div>
+          <div class="sci-headline">Cardiac <span>Drift</span></div>
+          <div class="sci-body">
+            <p>In a multi-rep session, end-of-recovery HR rises <strong>1–2 bpm per rep</strong> due to thermoregulation and progressive dehydration. A fixed threshold demands longer and longer rest as the session progresses.</p>
+            <p>RecovHR adds 1.5 bpm per rep from rep 3 onward — raising the threshold to match where HR actually sits, preserving the same physiological readiness state on rep 8 as rep 1.</p>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- ─── Method ─── -->
-<div class="section-dark" id="method">
+<!-- ════════ METHOD ════════ -->
+<div class="method-section" id="method">
   <div class="section-inner">
-    <div class="section-label">Method</div>
-    <div class="display-heading">Index<br><span>Construction</span></div>
-    <div class="method-grid" style="margin-top:32px;">
+    <div class="section-eyebrow" style="color:var(--teal);">Method</div>
+    <div class="section-heading light">Index <em style="color:var(--teal);">Construction</em></div>
+
+    <div class="method-grid">
       <div>
-        <p class="section-body light">The RecovHR formula is derived from published HIIT physiology literature. Every parameter — HRR fraction, drift constant, minimum floor — has a named source and rationale. No proprietary data. No black box.</p>
-        <ul class="comp-list" style="margin-top:28px;">
-          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+        <p style="font-size:13.5px; color:rgba(255,255,255,0.5); line-height:1.8; margin-bottom:24px;">Every parameter in RecovHR — HRR fraction, drift constant, clock floor — has a named source and a physiological rationale. No proprietary data. No black box.</p>
+        <div class="source-cards">
+          <div class="source-card reveal">
+            <div class="source-card-num">1</div>
             <div>
-              <div class="comp-name" style="color:var(--white);">Karvonen HRR Formula</div>
-              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">Foundation of all threshold calculations. Scales to individual usable cardiac range rather than population-average %HRmax.</div>
+              <div class="source-card-name">Karvonen HRR Formula</div>
+              <div class="source-card-desc">Foundation of all thresholds. Scales to individual usable cardiac range rather than population-average %HRmax.</div>
+              <div class="source-card-ref">Karvonen et al., 1957</div>
             </div>
-            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Karvonen et al., 1957</div>
-          </li>
-          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+          </div>
+          <div class="source-card reveal reveal-d1">
+            <div class="source-card-num">2</div>
             <div>
-              <div class="comp-name" style="color:var(--white);">VO2max HRR Fraction (0.42)</div>
-              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">Derived from the 4×4 Norwegian protocol's 70% HRmax active recovery upper bound, converted to HRR-based expression.</div>
+              <div class="source-card-name">VO2max HRR Fraction (0.42)</div>
+              <div class="source-card-desc">Derived from the 4×4 Norwegian protocol's 70% HRmax active recovery upper bound, converted to HRR-based expression.</div>
+              <div class="source-card-ref">Helgerud et al., 2007 · Buchheit & Laursen, 2013</div>
             </div>
-            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Helgerud et al., 2007<br>Buchheit & Laursen, 2013</div>
-          </li>
-          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+          </div>
+          <div class="source-card reveal reveal-d2">
+            <div class="source-card-num">3</div>
             <div>
-              <div class="comp-name" style="color:var(--white);">PCr Resynthesis Kinetics</div>
-              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">First-order kinetics, τ ≈ 43.7s. Basis for minimum clock floors for all workout types.</div>
+              <div class="source-card-name">PCr Resynthesis Kinetics</div>
+              <div class="source-card-desc">First-order kinetics, τ ≈ 43.7s. Basis for minimum clock floors — 87% at 90s, 93% at 120s.</div>
+              <div class="source-card-ref">Harris et al., 1976 · Glaister, 2005</div>
             </div>
-            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Harris et al., 1976<br>Glaister, 2005</div>
-          </li>
-          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+          </div>
+          <div class="source-card reveal reveal-d3">
+            <div class="source-card-num">4</div>
             <div>
-              <div class="comp-name" style="color:var(--white);">Cardiac Drift Constant (1.5 bpm/rep)</div>
-              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">Empirical mean from middle-distance runner interval study. Applied from rep 3 onward to correct progressive threshold shift.</div>
+              <div class="source-card-name">Cardiac Drift Constant (1.5 bpm/rep)</div>
+              <div class="source-card-desc">Empirical mean from middle-distance runner interval study. Applied from rep 3 onward.</div>
+              <div class="source-card-ref">Rampinini et al., 2015</div>
             </div>
-            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Rampinini et al., 2015</div>
-          </li>
-          <li class="comp-item" style="border-color:rgba(255,255,255,0.08);">
+          </div>
+          <div class="source-card reveal reveal-d4">
+            <div class="source-card-num">5</div>
             <div>
-              <div class="comp-name" style="color:var(--white);">Tanaka HRmax Estimate</div>
-              <div class="comp-desc" style="color:rgba(255,255,255,0.45);">208 − 0.7 × age. Lower mean absolute error than 220 − age across adult populations, used when measured HRmax unavailable.</div>
+              <div class="source-card-name">Tanaka HRmax Estimate</div>
+              <div class="source-card-desc">208 − 0.7 × age. Lower mean absolute error than 220 − age across adult populations.</div>
+              <div class="source-card-ref">Tanaka et al., 2001</div>
             </div>
-            <div class="comp-src" style="color:rgba(255,255,255,0.3);">Tanaka et al., 2001</div>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
+
       <div>
-        <div style="margin-bottom:28px;">
-          <div class="section-label" style="margin-bottom:12px;">Limitations</div>
-          <div class="limit-grid">
-            <div class="limit-card">
-              <div class="limit-num">1</div>
-              <div class="limit-title">HR lags for sprint work</div>
-              <div class="limit-body">HR peaks 30–60s after a sub-30s rep ends. Clock floor governs; HR is confirmation only for speed reps.</div>
-            </div>
-            <div class="limit-card">
-              <div class="limit-num">2</div>
-              <div class="limit-title">Drift constant is a mean</div>
-              <div class="limit-body">1.5 bpm/rep derived from one study. Heat and dehydration can push this to 2–3 bpm/rep.</div>
-            </div>
-            <div class="limit-card">
-              <div class="limit-num">3</div>
-              <div class="limit-title">LTHR estimation range</div>
-              <div class="limit-body">87% × HRmax spans 80–92% in literature. Field test strongly preferred for accurate workout-type classification.</div>
-            </div>
-            <div class="limit-card">
-              <div class="limit-num">4</div>
-              <div class="limit-title">No RCT validation</div>
-              <div class="limit-body">RecovHR has not been tested in a controlled trial comparing HR-gated vs. clock-gated recovery on adaptation outcomes.</div>
+        <!-- Limitations drawer -->
+        <div style="margin-bottom:32px;">
+          <div style="font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:14px;">Limitations</div>
+          <div class="method-drawer">
+            <button class="drawer-toggle" id="limitToggle">
+              Known Limitations <span class="arrow">▾</span>
+            </button>
+            <div class="drawer-body" id="limitBody">
+              <div class="drawer-inner">
+                <div class="limit-grid">
+                  <div class="limit-card">
+                    <div class="limit-num">1</div>
+                    <div class="limit-title">HR lags for sprint work</div>
+                    <div class="limit-body">HR peaks 30–60s after a sub-30s rep ends. Clock floor governs; HR is confirmation only.</div>
+                  </div>
+                  <div class="limit-card">
+                    <div class="limit-num">2</div>
+                    <div class="limit-title">Drift constant is a mean</div>
+                    <div class="limit-body">1.5 bpm/rep from one study. Heat and dehydration can push this to 2–3 bpm/rep.</div>
+                  </div>
+                  <div class="limit-card">
+                    <div class="limit-num">3</div>
+                    <div class="limit-title">LTHR estimation range</div>
+                    <div class="limit-body">87% × HRmax spans 80–92% in literature. Field test strongly preferred.</div>
+                  </div>
+                  <div class="limit-card">
+                    <div class="limit-num">4</div>
+                    <div class="limit-title">No RCT validation</div>
+                    <div class="limit-body">Not yet tested in a controlled trial vs. clock-gated recovery on adaptation outcomes.</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="section-label" style="margin-bottom:12px;">Key References</div>
-        <ul class="ref-list" style="color:rgba(255,255,255,0.45);">
-          <li>Buchheit & Laursen — HIIT programming puzzle Parts I & II. <em>Sports Medicine</em> 2013.</li>
-          <li>Helgerud et al. — Aerobic high-intensity intervals improve VO2max. <em>MSSE</em> 2007.</li>
-          <li>Harris et al. — PCr resynthesis kinetics. <em>Pflügers Archiv</em> 1976.</li>
-          <li>Cole et al. — Heart-rate recovery and mortality. <em>NEJM</em> 1999.</li>
-          <li>Karvonen et al. — Effects of training on heart rate. <em>Ann Med Exp Biol Fenn</em> 1957.</li>
-          <li>Tanaka et al. — Age-predicted maximal heart rate revisited. <em>JACC</em> 2001.</li>
-          <li>Rampinini et al. — HR during interval recovery. <em>JSSM</em> 2015.</li>
-        </ul>
+        <!-- Full reference drawer -->
+        <div style="font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:14px;">References</div>
+        <div class="method-drawer">
+          <button class="drawer-toggle" id="refToggle">
+            Full Bibliography <span class="arrow">▾</span>
+          </button>
+          <div class="drawer-body" id="refBody">
+            <div class="drawer-inner">
+              <ul class="ref-list">
+                <li>Buchheit & Laursen — HIIT programming puzzle, Parts I & II. <em>Sports Medicine</em> 2013.</li>
+                <li>Cole et al. — Heart-rate recovery as predictor of mortality. <em>NEJM</em> 1999.</li>
+                <li>Glaister — Multiple sprint work: physiology of fatigue. <em>Sports Medicine</em> 2005.</li>
+                <li>Harris et al. — PCr resynthesis time course. <em>Pflügers Archiv</em> 1976.</li>
+                <li>Helgerud et al. — Aerobic intervals improve VO2max. <em>MSSE</em> 2007.</li>
+                <li>Karvonen et al. — Training effects on heart rate. <em>Ann Med Exp Biol Fenn</em> 1957.</li>
+                <li>Menzies et al. — Lactate clearance depends on active recovery intensity. <em>J Sports Sci</em> 2010.</li>
+                <li>Rampinini et al. — HR during interval recovery in middle-distance runners. <em>JSSM</em> 2015.</li>
+                <li>Tanaka et al. — Age-predicted maximal heart rate revisited. <em>JACC</em> 2001.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ─── Footer ─── -->
+<!-- ════════ FOOTER ════════ -->
 <footer>
-  <div class="footer-inner">
+  <div class="footer-top">
     <div>
-      <div class="footer-brand">Recov<span>HR</span></div>
-      <div class="footer-desc">A heart rate reserve–based algorithm for individualized interval recovery prescription. Know when to go again.</div>
+      <div class="footer-brand">Recov<em>HR</em></div>
+      <div class="footer-tagline">A heart rate reserve algorithm for individualized interval recovery. Know when to go again.</div>
     </div>
     <div class="footer-col">
       <h4>Author</h4>
       <address>
         Luke Popler<br>
         Sequoia High School<br>
-        Redwood City, California<br>
+        Redwood City, CA<br>
         catlover125r@gmail.com
       </address>
     </div>
     <div class="footer-col">
-      <h4>Publication</h4>
+      <h4>Paper</h4>
       <p>
         April 2026<br>
-        Full paper available<br>
-        Algorithm open source
+        <a href="docs/RecovHR_Paper_Popler_2026.pdf" target="_blank" style="color:var(--teal);">Download PDF ↗</a>
       </p>
     </div>
     <div class="footer-col">
@@ -1234,7 +1217,7 @@
       <p>
         Interval training<br>
         Heart rate recovery<br>
-        Karvonen formula<br>
+        Karvonen · HRR<br>
         VO2max · HIIT<br>
         Lactate threshold
       </p>
@@ -1246,73 +1229,79 @@
   </div>
 </footer>
 
-<!-- ─── Lightbox ─── -->
-<div class="lb-overlay" id="lbOverlay">
+<!-- Lightbox -->
+<div class="lb-ov" id="lbOv">
   <div class="lb-panel" id="lbPanel">
-    <button class="lb-close" id="lbClose">&#x2715;</button>
+    <button class="lb-x" id="lbX">✕</button>
     <img id="lbImg" src="" alt="">
   </div>
 </div>
 
 <script>
-  // ── Scroll reveal ──
-  const revealEls = document.querySelectorAll('.reveal');
+  // Scroll reveal
+  const revEls = document.querySelectorAll('.reveal');
   function updateReveal() {
     const vh = window.innerHeight;
-    revealEls.forEach(el => {
-      const r = el.getBoundingClientRect();
-      if (r.top < vh - 20 && r.bottom > 0) el.classList.add('visible');
+    revEls.forEach(el => {
+      if (el.getBoundingClientRect().top < vh - 30) el.classList.add('vis');
     });
   }
   updateReveal();
   window.addEventListener('scroll', updateReveal, { passive: true });
   window.addEventListener('resize', updateReveal, { passive: true });
 
-  // ── Smooth scroll ──
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', e => {
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
       e.preventDefault();
-      const id = link.getAttribute('href');
+      const id = a.getAttribute('href');
       if (id === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-      const target = document.querySelector(id);
-      if (!target) return;
-      const navH = document.querySelector('nav').offsetHeight;
-      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH - 16, behavior: 'smooth' });
+      const el = document.querySelector(id);
+      if (!el) return;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' });
     });
   });
 
-  // ── Sidebar ──
-  const hamburger = document.getElementById('hamburger');
-  const sidebar   = document.getElementById('sidebar');
-  const overlay   = document.getElementById('sidebarOverlay');
-  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); hamburger.classList.add('open'); document.body.style.overflow = 'hidden'; }
-  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow = ''; }
-  hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
-  overlay.addEventListener('click', closeSidebar);
+  // Sidebar
+  const hbg = document.getElementById('hbg');
+  const sb  = document.getElementById('sidebar');
+  const sob = document.getElementById('sob');
+  function openSB()  { sb.classList.add('open'); sob.classList.add('open'); hbg.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeSB() { sb.classList.remove('open'); sob.classList.remove('open'); hbg.classList.remove('open'); document.body.style.overflow = ''; }
+  hbg.addEventListener('click', () => sb.classList.contains('open') ? closeSB() : openSB());
+  sob.addEventListener('click', closeSB);
 
-  // ── Lightbox ──
-  const lbOverlay = document.getElementById('lbOverlay');
-  const lbImg     = document.getElementById('lbImg');
+  // Drawers
+  function setupDrawer(toggleId, bodyId) {
+    const toggle = document.getElementById(toggleId);
+    const body   = document.getElementById(bodyId);
+    toggle.addEventListener('click', () => {
+      const open = toggle.classList.toggle('open');
+      body.classList.toggle('open', open);
+    });
+  }
+  setupDrawer('limitToggle', 'limitBody');
+  setupDrawer('refToggle',   'refBody');
+
+  // Lightbox
+  const lbOv = document.getElementById('lbOv');
+  const lbImg = document.getElementById('lbImg');
   function openLb(src, alt) {
     lbImg.src = src; lbImg.alt = alt;
-    lbOverlay.classList.add('open');
+    lbOv.classList.add('open');
     document.body.style.overflow = 'hidden';
-    requestAnimationFrame(() => requestAnimationFrame(() => lbOverlay.classList.add('visible')));
+    requestAnimationFrame(() => requestAnimationFrame(() => lbOv.classList.add('vis')));
   }
   function closeLb() {
-    lbOverlay.classList.remove('visible');
-    lbOverlay.addEventListener('transitionend', () => { lbOverlay.classList.remove('open'); document.body.style.overflow = ''; }, { once: true });
+    lbOv.classList.remove('vis');
+    lbOv.addEventListener('transitionend', () => { lbOv.classList.remove('open'); document.body.style.overflow = ''; }, { once: true });
   }
-  document.querySelectorAll('.fig-img').forEach(wrap => {
-    wrap.addEventListener('click', () => {
-      const img = wrap.querySelector('img');
-      if (img) openLb(img.src, img.alt);
-    });
+  document.querySelectorAll('.sci-img').forEach(w => {
+    w.addEventListener('click', () => { const i = w.querySelector('img'); if (i) openLb(i.src, i.alt); });
   });
-  document.getElementById('lbClose').addEventListener('click', closeLb);
-  lbOverlay.addEventListener('click', e => { if (e.target === lbOverlay) closeLb(); });
+  document.getElementById('lbX').addEventListener('click', closeLb);
+  lbOv.addEventListener('click', e => { if (e.target === lbOv) closeLb(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
 </script>
-
 </body>
 </html>
