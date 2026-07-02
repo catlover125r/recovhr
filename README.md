@@ -2,7 +2,7 @@
 
 **Know when to go again.** A heart-rate reserve algorithm for individualized interval recovery.
 
-Between hard reps, most runners guess. RecovHR converts four biometrics into one number per rep — the heart rate at which you're recovered enough to go hard again.
+Between hard reps, most runners guess. RecovHR converts four biometrics into one number per rep: the heart rate at which you're recovered enough to go hard again.
 
 📄 **Paper:** [RecovHR (Popler, 2026)](docs/RecovHR_Paper_Popler_2026.pdf)
 🌐 **Site:** open `index.html` in a browser (no build step)
@@ -11,8 +11,8 @@ Between hard reps, most runners guess. RecovHR converts four biometrics into one
 
 Recovery between reps is the least-measured variable in interval training, and getting it wrong costs in both directions:
 
-- **Go too soon** — with phosphocreatine only ~50% restored, session quality collapses by rep 3–4.
-- **Wait too long** — a full reset wastes 45–75 seconds per rep re-ramping to target intensity, diluting the training stimulus.
+- **Go too soon.** With phosphocreatine only ~50% restored, session quality collapses by rep 3–4.
+- **Wait too long.** A full reset wastes 45–75 seconds per rep re-ramping to target intensity, diluting the training stimulus.
 
 RecovHR targets the window in between.
 
@@ -41,7 +41,7 @@ Inputs: `HRmax` (measured, or Tanaka `208 − 0.7 × age`), `HRrest`, `LTHR` (30
 
 ```
 index.html   single-page site with a live threshold calculator
-src/         hrRecovery.ts — reference TypeScript implementation
+src/         hrRecovery.ts, a reference TypeScript implementation
 figures/     charts used in the paper and site
 docs/        the paper (PDF + Markdown source)
 ```
@@ -55,7 +55,7 @@ python3 -m http.server 8000
 
 ## Method & limitations
 
-Every parameter has a named source (Karvonen 1957; Helgerud 2007; Buchheit & Laursen 2013; Harris 1976; Glaister 2005; Rampinini 2015; Tanaka 2001) — no proprietary data, no black box. Known limitations: HR lags sub-30s sprints (the clock floor governs), the drift constant is a single-study mean, LTHR estimates vary 80–92% across the literature, and the index has not yet been tested in a controlled trial. Full bibliography in the paper.
+Every parameter has a named source (Karvonen 1957; Helgerud 2007; Buchheit & Laursen 2013; Harris 1976; Glaister 2005; Rampinini 2015; Tanaka 2001): no proprietary data, no black box. Known limitations: HR lags sub-30s sprints (the clock floor governs), the drift constant is a single-study mean, LTHR estimates vary 80–92% across the literature, and the index has not yet been tested in a controlled trial. Full bibliography in the paper.
 
 ## Author
 
