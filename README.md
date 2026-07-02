@@ -26,7 +26,7 @@ T    = HRR × f + HRrest            recovery threshold for the workout type
 T(n) = T + (n − 1) × 1.5           cardiac-drift correction, from rep 3
 ```
 
-Worked example — HRmax 188, HRrest 48, VO2max session: `HRR = 140`, `T = 140 × 0.42 + 48 = 107 bpm`.
+Worked example with HRmax 188 and HRrest 48 in a VO2max session: `HRR = 140`, `T = 140 × 0.42 + 48 = 107 bpm`.
 
 | Workout | HRR fraction *f* | Clock floor | Rationale |
 |---------|-----------------|-------------|-----------|
